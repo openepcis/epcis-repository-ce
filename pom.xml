@@ -24,7 +24,7 @@
     <parent>
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-bom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>999-SNAPSHOT</version>
     </parent>
 
     <artifactId>openepcis-repository-ce</artifactId>
@@ -64,6 +64,7 @@
 
     <modules>
         <module>openepcis-rest-api-common</module>
+        <module>openepcis-repository-common</module>
     </modules>
 
     <build>
