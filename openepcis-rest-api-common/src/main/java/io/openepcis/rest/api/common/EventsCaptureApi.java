@@ -19,6 +19,7 @@ import io.openepcis.model.epcis.EPCISEvent;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.rest.api.common.constants.ParameterDescriptions;
 import io.openepcis.rest.api.common.constants.ResponseBodyExamples;
+import io.openepcis.rest.api.common.filter.EPCISClientRequestFilter;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
@@ -39,6 +40,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import java.io.IOException;
@@ -46,13 +48,9 @@ import java.io.InputStream;
 
 import static io.openepcis.rest.api.common.constants.ParameterConstants.*;
 
-@SecurityRequirement(name = "apiKey")
-@SecurityRequirement(name = "apiKeySecret")
-@SecurityRequirement(name = "bearerAuth")
-@SecurityRequirement(name = "oidc")
-@RolesAllowed("query") // security annotation not being inherited from interface
 @Path("/")
-@RegisterRestClient(configKey = "events-capture-api")
+@RegisterRestClient(configKey = "epcis-api")
+@RegisterProvider(EPCISClientRequestFilter.class)
 public interface EventsCaptureApi {
 
     @Operation(summary = "The Events Validation API", description = "eventsValidate")

@@ -1,0 +1,4 @@
+quarkus:
+  rest-client:
+    epcis-api:
+      url: "https://api.epcis.cloud"

@@ -18,6 +18,7 @@ package io.openepcis.rest.api.common;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.rest.api.common.constants.ParameterDescriptions;
 import io.openepcis.rest.api.common.constants.ResponseBodyExamples;
+import io.openepcis.rest.api.common.filter.EPCISClientRequestFilter;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
@@ -38,6 +39,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
@@ -54,12 +56,8 @@ import static io.openepcis.rest.api.common.constants.ParameterConstants.*;
         "- read points\n" +
         "- dispositions")
 @Path("/eventTypes")
-@SecurityRequirement(name = "apiKey")
-@SecurityRequirement(name = "apiKeySecret")
-@SecurityRequirement(name = "bearerAuth")
-@SecurityRequirement(name = "oidc")
-@RolesAllowed("query")
-@RegisterRestClient(configKey = "eventTypes-api")
+@RegisterRestClient(configKey = "epcis-api")
+@RegisterProvider(EPCISClientRequestFilter.class)
 public interface EventTypesTopLevelApi {
 
     @Operation(

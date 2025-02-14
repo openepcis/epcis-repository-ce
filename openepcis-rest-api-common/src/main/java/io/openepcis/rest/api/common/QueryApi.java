@@ -21,6 +21,7 @@ import io.openepcis.model.rest.EPCISQuery;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.rest.api.common.constants.ParameterDescriptions;
 import io.openepcis.rest.api.common.constants.ResponseBodyExamples;
+import io.openepcis.rest.api.common.filter.EPCISClientRequestFilter;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.http.HttpServerRequest;
@@ -44,6 +45,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.openapi.annotations.tags.Tags;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.reactive.RestHeader;
 import org.jboss.resteasy.reactive.RestPath;
@@ -58,12 +60,8 @@ import static io.openepcis.rest.api.common.constants.ParameterConstants.*;
                         + "      name and are stored until deleted by the user. Anonymous queries are not persisted and only available to the caller.\n"
                         + "      EPCIS events queries also support query subscription.")
 @Path("queries")
-@SecurityRequirement(name = "apiKey")
-@SecurityRequirement(name = "apiKeySecret")
-@SecurityRequirement(name = "bearerAuth")
-@SecurityRequirement(name = "oidc")
-@RolesAllowed("query") // security annotation not being inherited from interface
-@RegisterRestClient(configKey = "query-api")
+@RegisterRestClient(configKey = "epcis-api")
+@RegisterProvider(EPCISClientRequestFilter.class)
 public interface QueryApi {
 
     @Operation(

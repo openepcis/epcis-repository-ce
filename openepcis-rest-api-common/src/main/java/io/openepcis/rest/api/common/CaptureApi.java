@@ -21,6 +21,7 @@ import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.rest.api.common.constants.HeaderConstants;
 import io.openepcis.rest.api.common.constants.ParameterDescriptions;
 import io.openepcis.rest.api.common.constants.ResponseBodyExamples;
+import io.openepcis.rest.api.common.filter.EPCISClientRequestFilter;
 import io.smallrye.mutiny.Uni;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
@@ -40,6 +41,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.openapi.annotations.tags.Tags;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import java.io.InputStream;
@@ -48,12 +50,8 @@ import static io.openepcis.rest.api.common.constants.ParameterConstants.*;
 
 @Tag(name = "Capture", description = "Endpoints to capture EPCIS events in bulk or individually.")
 @Path("capture")
-@SecurityRequirement(name = "apiKey")
-@SecurityRequirement(name = "apiKeySecret")
-@SecurityRequirement(name = "bearerAuth")
-@SecurityRequirement(name = "oidc")
-@RolesAllowed("capture") // security annotation not being inherited from interface
-@RegisterRestClient(configKey = "capture-api")
+@RegisterRestClient(configKey = "epcis-api")
+@RegisterProvider(EPCISClientRequestFilter.class)
 public interface CaptureApi {
     @Tags(
             value = {

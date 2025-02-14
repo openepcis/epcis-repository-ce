@@ -16,17 +16,14 @@
         limitations under the License.
 
 -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-bom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>999-SNAPSHOT</version>
     </parent>
-
     <artifactId>openepcis-repository-ce</artifactId>
     <packaging>pom</packaging>
     <name>OpenEPCIS Community Edition</name>
@@ -64,6 +61,7 @@
 
     <modules>
         <module>openepcis-rest-api-common</module>
+        <module>openepcis-client</module>
     </modules>
 
     <build>
@@ -98,6 +96,7 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -181,6 +180,16 @@
                 <version>${project.parent.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-openepcis-model</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-openepcis-model-deployment</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-query</artifactId>
                 <version>${project.parent.version}</version>
@@ -197,13 +206,19 @@
             </dependency>
             <dependency>
                 <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-rest-api-common</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-document-converter</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-document-converter-sax</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.openepcis</groupId>
@@ -218,7 +233,7 @@
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>keycloak-api-key-rest-client</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.quarkus</groupId>
@@ -245,8 +260,14 @@
                 <artifactId>openepcis-opentelemetry-logging</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-client</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
     <profiles>
         <profile>
             <id>coverage</id>
@@ -300,11 +321,8 @@
                                 </goals>
                                 <configuration>
                                     <systemPropertyVariables>
-                                        <native.image.path>
-                                            ${project.build.directory}/${project.build.finalName}-runner
-                                        </native.image.path>
-                                        <java.util.logging.manager>org.jboss.logmanager.LogManager
-                                        </java.util.logging.manager>
+                                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                                         <maven.home>${maven.home}</maven.home>
                                     </systemPropertyVariables>
                                 </configuration>

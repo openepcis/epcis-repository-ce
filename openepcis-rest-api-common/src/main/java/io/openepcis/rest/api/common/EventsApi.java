@@ -22,15 +22,11 @@ import io.openepcis.model.epcis.format.EPCFormat;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.rest.api.common.constants.ParameterDescriptions;
 import io.openepcis.rest.api.common.constants.ResponseBodyExamples;
-import io.quarkus.security.identity.SecurityIdentity;
+import io.openepcis.rest.api.common.filter.EPCISClientRequestFilter;
 import io.smallrye.mutiny.Uni;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -40,10 +36,11 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameters;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
-import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.openapi.annotations.tags.Tags;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.jboss.resteasy.reactive.RestHeader;
 import org.jboss.resteasy.reactive.RestPath;
 import org.jboss.resteasy.reactive.RestQuery;
 
@@ -53,12 +50,8 @@ import static io.openepcis.rest.api.common.constants.ParameterConstants.*;
         name = "Events",
         description = "Endpoints that allow you to retrieve EPCIS events as Web resources.")
 @Path("/")
-@SecurityRequirement(name = "apiKey")
-@SecurityRequirement(name = "apiKeySecret")
-@SecurityRequirement(name = "bearerAuth")
-@SecurityRequirement(name = "oidc")
-@RolesAllowed("query") // security annotation not being inherited from interface
-@RegisterRestClient(configKey = "events-api")
+@RegisterRestClient(configKey = "epcis-api")
+@RegisterProvider(EPCISClientRequestFilter.class)
 public interface EventsApi {
 
     @Tags(
@@ -435,9 +428,29 @@ public interface EventsApi {
             "application/ld+json"
     })
     @Consumes({MediaType.APPLICATION_JSON, "application/ld+json"})
-    public Uni<Response> eventsGet(
-            @Context SecurityIdentity securityIdentity,
-            @Context UriInfo uriInfo);
+    public Uni<Response> eventsGet();
+
+    @GET
+    @Path("events")
+    @Produces({
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_XML,
+            MediaType.TEXT_XML,
+            "application/problem+json",
+            "application/ld+json"
+    })
+    public Uni<Response> eventsGet(@RestQuery MultivaluedMap<String, String> query);
+
+    @GET
+    @Path("events")
+    @Produces({
+            MediaType.APPLICATION_JSON,
+            MediaType.APPLICATION_XML,
+            MediaType.TEXT_XML,
+            "application/problem+json",
+            "application/ld+json"
+    })
+    public Uni<Response> eventsGet(@RestQuery MultivaluedMap<String, String> query, @RestHeader MultivaluedMap<String, String> headers);
 
     @Operation(
             summary = "Returns an individual EPCIS event",
@@ -552,8 +565,7 @@ public interface EventsApi {
             "application/ld+json"
     })
     @Consumes({MediaType.APPLICATION_JSON, "application/ld+json"})
-    Uni<Response> getEventById(@Context SecurityIdentity securityIdentity,
-                                      @RestPath String eventID);
+    Uni<Response> getEventById(@RestPath String eventID);
 
     @Operation(
             summary =
@@ -939,7 +951,6 @@ public interface EventsApi {
     })
     @Consumes({MediaType.APPLICATION_JSON, "application/ld+json"})
     Uni<Response> getEventsFromEventTypes(
-            @Context SecurityIdentity securityIdentity,
             @RestPath
             String eventType,
             @Valid
