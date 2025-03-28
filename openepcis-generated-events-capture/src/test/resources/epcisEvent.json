@@ -1,0 +1,38 @@
+{
+  "@context": [
+    "https://ref.gs1.org/standards/epcis/2.0.0/epcis-context.jsonld"
+  ],
+  "type": "EPCISDocument",
+  "schemaVersion": "2.0",
+  "creationDate": "2025-03-11T15:27:23.60Z",
+  "epcisBody": {
+    "eventList": [
+      {
+        "type": "ObjectEvent",
+        "eventTime": "2025-03-11T15:24:36+01:00",
+        "eventTimeZoneOffset": "+01:00",
+        "epcList": [
+          "https://id.gs1.org/01/09521141012345/21/54853531858956",
+          "https://id.gs1.org/01/09521141012345/21/132542924711312609",
+          "https://id.gs1.org/01/09521141012345/21/7021",
+          "https://id.gs1.org/01/09521141012345/21/69894546",
+          "https://id.gs1.org/01/09521141012345/21/478"
+        ],
+        "action": "ADD"
+      },
+      {
+        "type": "ObjectEvent",
+        "eventTime": "2025-03-11T15:24:36+01:00",
+        "eventTimeZoneOffset": "+01:00",
+        "epcList": [
+          "https://id.gs1.org/01/09521141012345/21/8219981229670530",
+          "https://id.gs1.org/01/09521141012345/21/8329778962",
+          "https://id.gs1.org/01/09521141012345/21/925909934",
+          "https://id.gs1.org/01/09521141012345/21/003603255951080",
+          "https://id.gs1.org/01/09521141012345/21/37546"
+        ],
+        "action": "ADD"
+      }
+    ]
+  }
+}
