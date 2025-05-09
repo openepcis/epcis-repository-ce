@@ -1,0 +1,76 @@
+services:
+  quarkus-rest-api:
+    image: docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-rd:999-SNAPSHOT
+    container_name: quarkus-rest-api
+    environment:
+      - "QUARKUS_OPENSEARCH_HOSTS=opensearch-node-01:9200"
+      - "KAFKA_BOOTSTRAP_SERVERS=openepcis-kafka:9092"
+    ports:
+      - 8080:8080
+    networks:
+      - openepcis-net
+  opensearch-node-01:
+    image: opensearchproject/opensearch:2.17.1
+    container_name: opensearch-node-01
+    environment:
+      - cluster.name=openepcis-cluster
+      - node.name=opensearch-node-01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - "DISABLE_SECURITY_PLUGIN=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - 9200:9200
+      - 9600:9600
+    networks:
+      - openepcis-net
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.17.1
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch-node-01:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
+    networks:
+      - openepcis-net
+
+  openepcis-kafka:
+    image: "docker.io/bitnami/kafka:3.8"
+    container_name: openepcis-kafka
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@openepcis-kafka:9093"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://openepcis-kafka:9092"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+    ports:
+      - 9092:9092
+    networks:
+      - openepcis-net
+
+  kafkasetup:
+    image: "docker.io/bitnami/kafka:3.8"
+    depends_on:
+      - openepcis-kafka
+    restart: "no"
+    command: bash -c 'unset JMX_PORT=""; sleep 20; topics=( "capture-document-event" "capture-document-event-count" "capture-documents" "capture-documents-agg" "epcis-event-captured" "epcis-event-persisted" "epcis-event-validated" "epcis-event-validated_failure" "epcis-event-validated_success" "epcis-event-validated-failure" "epcis-event-validated-success" "streaming-subscription" "event-saved" "capture-documents-agg" ); for topic in "$${topics[@]}"; do /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server openepcis-kafka:9092 --create --if-not-exists --partitions 1 --replication-factor 1 --topic $$topic; done; exit'
+    networks:
+      - openepcis-net
+
+networks:
+  openepcis-net:

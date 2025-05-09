@@ -1,0 +1,192 @@
+#
+# Copyright 2022-2023 benelog GmbH & Co. KG
+#
+#     Licensed under the Apache License, Version 2.0 (the "License");
+#     you may not use this file except in compliance with the License.
+#     You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#     Unless required by applicable law or agreed to in writing, software
+#     distributed under the License is distributed on an "AS IS" BASIS,
+#     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#     See the License for the specific language governing permissions and
+#     limitations under the License.
+#
+
+storage:
+  factory-name: "noop"
+  bucket: openepcis
+  document-key-prefix-date-format: "'capture-document/'yyyy/MM/dd/"
+  event-key-prefix-date-format: "'epcis-event/'yyyy/MM/dd/"
+  json-schema-key-prefix: "json-schema/"
+
+repository:
+  user:
+    extension:
+      fields:
+        index: user-extension-fields
+      schema:
+        index: user-extension-schema
+  epcis:
+    event:
+      index: epcis-event
+    query:
+      index: epcis-query
+    subscription:
+      index: epcis-subscription
+    next-page-token-ttl: 1m
+    per-page-default: 30
+    per-page-max: 100
+    top-level:
+      per-page-default: 100
+      per-page-max: 1000
+
+  capture:
+    job:
+      index: capture-job
+
+etcd:
+  host: "${ETCD_HOST:openepcis-etcd}"
+
+quarkus:
+  otel:
+    enabled: true
+    traces:
+      enabled: true
+  log:
+    level: INFO
+    category:
+      "org.opensearch.client.RestClient":
+        level: ERROR
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%X{traceId}, %X{spanId}] [%c{2.}] (%t) %s%e%n"
+    file:
+      enable: true
+      path: logs/openepcis.log
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%X{traceId}, %X{spanId}] [%c{2.}] (%t) %s%e%n"
+  opensearch:
+    hosts: localhost:9200
+  s3:
+    endpoint-override: "${S3_ENDPOINT_OVERRIDE:http://127.0.0.1:9100}"
+    path-style-access: true
+    aws:
+      region: "us-east-1"
+      credentials:
+        type: static
+        static-provider:
+          access-key-id: "root"
+          secret-access-key: "openepcis"
+    sync-client:
+      type: apache
+
+
+mp:
+  messaging:
+    websocket-subscription:
+      topic: websocket-subscription
+      connector: smallrye-kafka
+      value:
+        serializer: org.apache.kafka.common.serialization.StringSerializer
+        deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key:
+        serializer: org.apache.kafka.common.serialization.StringSerializer
+        deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      broadcast: true
+    outgoing:
+      websocket-subscription-out:
+        topic: websocket-subscription
+        connector: smallrye-kafka
+        value:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      event-saved-out:
+        topic: event-saved
+        connector: smallrye-kafka
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      event-captured-out:
+        topic: epcis-event-captured
+        connector: smallrye-kafka
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      capture-document-out:
+        topic: capture-documents
+        connector: smallrye-kafka
+        merge: true
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      capture-document-event-out:
+        topic: capture-document-event
+        connector: smallrye-kafka
+        merge: true
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      capture-document-event-error-out:
+        topic: capture-document-event-error
+        connector: smallrye-kafka
+        merge: true
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      capture-document-event-count-out:
+        topic: capture-document-event-count
+        connector: smallrye-kafka
+        merge: true
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      epcis-event-validated-success-out:
+        topic: epcis-event-validated-success
+        connector: smallrye-kafka
+        merge: true
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+      epcis-event-validated-failure-out:
+        topic: epcis-event-validated-failure
+        connector: smallrye-kafka
+        merge: true
+        value:
+          serializer: io.quarkus.kafka.client.serialization.JsonbSerializer
+        key:
+          serializer: org.apache.kafka.common.serialization.StringSerializer
+    incoming:
+      epcis-event-capture-queue-in:
+        topic: epcis-event-capture-queue
+        connector: smallrye-kafka
+        value:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        key:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      event-saved-in:
+        topic: event-saved
+        group:
+          id: streaming-consumer-group
+        connector: smallrye-kafka
+        value:
+          deserializer: io.openepcis.capture.kafka.EventSavedMessageDeserializer
+        key:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      event-saved-in-epc-consumer:
+        topic: event-saved
+        group:
+          id: epc-consumer-group
+        connector: smallrye-kafka
+        value:
+          deserializer: io.openepcis.capture.kafka.EventSavedMessageDeserializer
+        key:
+          deserializer: org.apache.kafka.common.serialization.StringDeserializer
+

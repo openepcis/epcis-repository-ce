@@ -1,0 +1,224 @@
+2025-05-05 09:44:53 WARN  [, ] [io.qu.config] (Quarkus Main Thread) Unrecognized configuration key "quarkus.otel.enabled" was provided; it will be ignored; verify that the dependency extension for this configuration is set or that you did not make a typo
+2025-05-05 09:44:53 WARN  [, ] [io.qu.config] (Quarkus Main Thread) Unrecognized configuration key "quarkus.otel.traces.enabled" was provided; it will be ignored; verify that the dependency extension for this configuration is set or that you did not make a typo
+2025-05-05 09:44:53 WARN  [, ] [io.qu.config] (Quarkus Main Thread) Unrecognized configuration key "quarkus.health.openapi.included" was provided; it will be ignored; verify that the dependency extension for this configuration is set or that you did not make a typo
+2025-05-05 09:44:54 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) template epcis-percolator-queries-template is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index epcis-percolator-queries is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) template epcis-query-template is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index epcis-query is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) template epcis-event-template is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index epcis-event is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) template capture-job-template is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index capture-job is successfully created
+2025-05-05 09:44:55 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) template epcis-subscription-template is successfully created
+2025-05-05 09:44:56 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index epcis-subscription is successfully created
+2025-05-05 09:44:56 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) template epc-template is successfully created
+2025-05-05 09:44:56 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index epc is successfully created
+2025-05-05 09:44:56 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index user-extension-fields is successfully created
+2025-05-05 09:44:56 INFO  [, ] [io.op.re.op.co.OpenSearchInitializer] (Quarkus Main Thread) index user-extension-schema is successfully created
+2025-05-05 09:44:56 INFO  [, ] [io.sm.re.me.kafka] (Quarkus Main Thread) SRMSG18229: Configured topics for channel 'event-saved-in-epc-consumer': [event-saved]
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (Quarkus Main Thread) SRMSG18229: Configured topics for channel 'event-saved-in': [event-saved]
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (Quarkus Main Thread) SRMSG18229: Configured topics for channel 'epcis-event-capture-queue-in': [epcis-event-capture-queue]
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-0) SRMSG18258: Kafka producer kafka-producer-epcis-event-validated-success-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'epcis-event-validated-success'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-1) SRMSG18258: Kafka producer kafka-producer-capture-document-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'capture-documents'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-2) SRMSG18258: Kafka producer kafka-producer-epcis-event-validated-failure-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'epcis-event-validated-failure'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-3) SRMSG18258: Kafka producer kafka-producer-event-captured-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'epcis-event-captured'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-4) SRMSG18258: Kafka producer kafka-producer-event-saved-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'event-saved'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-5) SRMSG18258: Kafka producer kafka-producer-capture-document-event-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'capture-document-event'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-6) SRMSG18258: Kafka producer kafka-producer-capture-document-event-error-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'capture-document-event-error'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-7) SRMSG18258: Kafka producer kafka-producer-capture-document-event-count-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'capture-document-event-count'
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-producer-thread-8) SRMSG18258: Kafka producer kafka-producer-websocket-subscription-out, connected to Kafka brokers 'localhost:9092', is configured to write records to 'websocket-subscription'
+2025-05-05 09:44:57 WARN  [, ] [io.sm.re.me.provider] (Quarkus Main Thread) SRMSG00207: Some components are not connected to either downstream consumers or upstream producers:
+	- IncomingConnector{channel:'epcis-event-capture-queue-in', attribute:'mp.messaging.incoming.epcis-event-capture-queue-in'} has no downstream
+	- OutgoingConnector{channel:'capture-document-out', attribute:'mp.messaging.outgoing.capture-document-out'} has no upstream
+	- OutgoingConnector{channel:'capture-document-event-error-out', attribute:'mp.messaging.outgoing.capture-document-event-error-out'} has no upstream
+	- OutgoingConnector{channel:'websocket-subscription-out', attribute:'mp.messaging.outgoing.websocket-subscription-out'} has no upstream
+
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-consumer-thread-0) SRMSG18257: Kafka consumer kafka-consumer-event-saved-in-epc-consumer, connected to Kafka brokers 'localhost:9092', belongs to the 'epc-consumer-group' consumer group and is configured to poll records from [event-saved]
+2025-05-05 09:44:57 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-consumer-thread-1) SRMSG18257: Kafka consumer kafka-consumer-event-saved-in, connected to Kafka brokers 'localhost:9092', belongs to the 'streaming-consumer-group' consumer group and is configured to poll records from [event-saved]
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.StreamsConfig] (Quarkus Main Thread) StreamsConfig values: 
+	acceptable.recovery.lag = 10000
+	application.id = openepcis-quarkus-rest-api-ce-streams
+	application.server = localhost:8080
+	auto.include.jmx.reporter = true
+	bootstrap.servers = [localhost:9092]
+	buffered.records.per.partition = 1000
+	built.in.metrics.version = latest
+	cache.max.bytes.buffering = 10485760
+	client.id = 
+	commit.interval.ms = 30000
+	connections.max.idle.ms = 540000
+	default.client.supplier = class org.apache.kafka.streams.processor.internals.DefaultKafkaClientSupplier
+	default.deserialization.exception.handler = class org.apache.kafka.streams.errors.LogAndFailExceptionHandler
+	default.dsl.store = rocksDB
+	default.key.serde = null
+	default.list.key.serde.inner = null
+	default.list.key.serde.type = null
+	default.list.value.serde.inner = null
+	default.list.value.serde.type = null
+	default.production.exception.handler = class org.apache.kafka.streams.errors.DefaultProductionExceptionHandler
+	default.timestamp.extractor = class org.apache.kafka.streams.processor.FailOnInvalidTimestamp
+	default.value.serde = null
+	dsl.store.suppliers.class = class org.apache.kafka.streams.state.BuiltInDslStoreSuppliers$RocksDBDslStoreSuppliers
+	enable.metrics.push = true
+	log.summary.interval.ms = 120000
+	max.task.idle.ms = 0
+	max.warmup.replicas = 2
+	metadata.max.age.ms = 300000
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	num.standby.replicas = 0
+	num.stream.threads = 1
+	poll.ms = 100
+	probing.rebalance.interval.ms = 600000
+	processing.exception.handler = class org.apache.kafka.streams.errors.LogAndFailProcessingExceptionHandler
+	processing.guarantee = at_least_once
+	rack.aware.assignment.non_overlap_cost = null
+	rack.aware.assignment.strategy = none
+	rack.aware.assignment.tags = []
+	rack.aware.assignment.traffic_cost = null
+	receive.buffer.bytes = 32768
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	repartition.purge.interval.ms = 30000
+	replication.factor = -1
+	request.timeout.ms = 40000
+	retries = 0
+	retry.backoff.ms = 100
+	rocksdb.config.setter = null
+	security.protocol = PLAINTEXT
+	send.buffer.bytes = 131072
+	state.cleanup.delay.ms = 600000
+	state.dir = /var/folders/5q/mqfxsh851bqglngf9bxvpy_00000gn/T//kafka-streams
+	statestore.cache.max.bytes = 10485760
+	task.assignor.class = null
+	task.timeout.ms = 300000
+	topology.optimization = none
+	upgrade.from = null
+	window.size.ms = null
+	windowed.inner.class.serde = null
+	windowstore.changelog.additional.retention.ms = 86400000
+
+2025-05-05 09:44:57 WARN  [, ] [or.ap.ka.st.pr.in.StateDirectory] (Quarkus Main Thread) Using an OS temp directory in the state.dir property can cause failures with writing the checkpoint file due to the fact that this directory can be cleared by the OS. Resolved state.dir: [/var/folders/5q/mqfxsh851bqglngf9bxvpy_00000gn/T//kafka-streams]
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.pr.in.StateDirectory] (Quarkus Main Thread) Reading UUID from process file: ddbf3606-6b1c-4b32-ba2a-95f8502d083c
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.KafkaStreams] (Quarkus Main Thread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Kafka Streams version: 3.9.0
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.KafkaStreams] (Quarkus Main Thread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Kafka Streams commit ID: 84caaa6e9da06435
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (Quarkus Main Thread) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Creating restore consumer client
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (Quarkus Main Thread) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Creating thread producer client
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.pr.in.DefaultStateUpdater] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StateUpdater-1) state-updater [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StateUpdater-1] State updater thread started
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (Quarkus Main Thread) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Creating consumer client
+2025-05-05 09:44:57 INFO  [, ] [or.ap.ka.st.pr.in.as.AssignorConfiguration] (Quarkus Main Thread) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer] Cooperative rebalancing protocol is enabled now
+2025-05-05 09:44:57 INFO  [, ] [io.op.cu.ex.ca.UserExtensionSchemaCache] (Quarkus Main Thread) Fetch all user extension schemas from user-extension-schema index
+2025-05-05 09:44:57 INFO  [, ] [io.op.cu.ex.ca.UserExtensionSchemaCache] (Quarkus Main Thread) Caching user extension schema begins
+2025-05-05 09:44:57 INFO  [, ] [io.op.cu.ex.ca.UserExtensionSchemaCache] (Quarkus Main Thread) Caching of user extension schema done
+2025-05-05 09:44:57 INFO  [, ] [io.quarkus] (Quarkus Main Thread) openepcis-quarkus-rest-api-ce 999-SNAPSHOT on JVM (powered by Quarkus 3.20.0) started in 10.008s. Listening on: http://localhost:8080
+2025-05-05 09:44:57 INFO  [, ] [io.quarkus] (Quarkus Main Thread) Profile dev activated. Live Coding activated.
+2025-05-05 09:44:57 INFO  [, ] [io.quarkus] (Quarkus Main Thread) Installed features: [OpenSearchInitializer, amazon-sdk-s3, bucket4j, cache, cdi, config-yaml, jobrunr, kafka-client, kafka-streams, messaging, messaging-kafka, micrometer, oidc, oidc-client, openepcis-document-converter, openepcis-epcis-model, openepcis-keyvalue-repository, openepcis-repository-opensearch, openepcis-schema-validator, openepcis-storage-service, openepcis-test-resources, opensearch-java-client, reactive-routes, rest, rest-client, rest-client-jackson, rest-jackson, rest-jaxb, security, smallrye-context-propagation, smallrye-health, smallrye-openapi, swagger-ui, vertx, websockets-next]
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.KafkaStreams] (executor-thread-1) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] State transition from CREATED to REBALANCING
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.st.in.RocksDBTimestampedStore] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) Opening store global-capture-job-message-store in regular mode
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.pr.in.GlobalStateManagerImpl] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) global-stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread] Restoring state for global store global-capture-job-message-store
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.pr.in.GlobalStreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) global-stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread] State transition from CREATED to RUNNING
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.KafkaStreams] (executor-thread-1) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Started 1 stream threads
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Starting
+2025-05-05 09:44:58 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] State transition from CREATED to STARTING
+2025-05-05 09:44:58 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 3 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:44:59 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Processed 0 total records, ran 0 punctuators, and committed 0 total tasks since the last update
+2025-05-05 09:44:59 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 11 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:44:59 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 12 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:44:59 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 13 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:44:59 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 14 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:45:00 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 15 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:45:01 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 16 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:45:02 WARN  [, ] [or.ap.ka.cl.NetworkClient] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The metadata response from the cluster reported a recoverable issue with correlation id 17 : {epcis-event-validated_failure=UNKNOWN_TOPIC_OR_PARTITION, epcis-event-validated_success=UNKNOWN_TOPIC_OR_PARTITION}
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.st.pr.in.RepartitionTopics] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer] Subtopology 4 has missing source topics [epcis-event-validated_failure] and will be excluded from the current assignment, this can be due to the consumer client's metadata being stale or because they have not been created yet. Please verify that you have created all input topics; if they do exist, you just need to wait for the metadata to be updated, at which time a new rebalance will be kicked off automatically and the topology will be retried at that time.
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.st.pr.in.RepartitionTopics] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer] Subtopology 5 has missing source topics [epcis-event-validated_success] and will be excluded from the current assignment, this can be due to the consumer client's metadata being stale or because they have not been created yet. Please verify that you have created all input topics; if they do exist, you just need to wait for the metadata to be updated, at which time a new rebalance will be kicked off automatically and the topology will be retried at that time.
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.RepartitionTopics] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer] Skipping the repartition topic validation since all topologies containing repartitiontopics are missing external user source topics and cannot be processed.
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.st.pr.in.StreamsPartitionAssignor] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer] Missing source topics. [epcis-event-validated_failure, epcis-event-validated_success]
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.st.pr.in.StreamsPartitionAssignor] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer] Caught an error in the task assignment. Returning an error assignment.: org.apache.kafka.streams.errors.MissingSourceTopicException: Missing source topics. [epcis-event-validated_failure, epcis-event-validated_success]
+	at org.apache.kafka.streams.processor.internals.StreamsPartitionAssignor.prepareRepartitionTopics(StreamsPartitionAssignor.java:676)
+	at org.apache.kafka.streams.processor.internals.StreamsPartitionAssignor.assign(StreamsPartitionAssignor.java:426)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.onLeaderElected(ConsumerCoordinator.java:650)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.onLeaderElected(AbstractCoordinator.java:767)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.access$1100(AbstractCoordinator.java:118)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator$JoinGroupResponseHandler.handle(AbstractCoordinator.java:671)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator$JoinGroupResponseHandler.handle(AbstractCoordinator.java:632)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator$CoordinatorResponseHandler.onSuccess(AbstractCoordinator.java:1311)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator$CoordinatorResponseHandler.onSuccess(AbstractCoordinator.java:1286)
+	at org.apache.kafka.clients.consumer.internals.RequestFuture$1.onSuccess(RequestFuture.java:206)
+	at org.apache.kafka.clients.consumer.internals.RequestFuture.fireSuccess(RequestFuture.java:169)
+	at org.apache.kafka.clients.consumer.internals.RequestFuture.complete(RequestFuture.java:129)
+	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient$RequestFutureCompletionHandler.fireCompletion(ConsumerNetworkClient.java:617)
+	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.firePendingCompletedRequests(ConsumerNetworkClient.java:429)
+	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:314)
+	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:253)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.pollForFetches(ClassicKafkaConsumer.java:692)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.poll(ClassicKafkaConsumer.java:623)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.poll(ClassicKafkaConsumer.java:596)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:874)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollRequests(StreamThread.java:1276)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollPhase(StreamThread.java:1224)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runOnceWithoutProcessingThreads(StreamThread.java:957)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runLoop(StreamThread.java:712)
+	at org.apache.kafka.streams.processor.internals.StreamThread.run(StreamThread.java:671)
+
+2025-05-05 09:45:02 WARN  [, ] [or.ap.ka.cl.co.in.ConsumerCoordinator] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] The following subscribed topics are not assigned to any members: [capture-document-event, capture-document-event-count, capture-documents-agg, epcis-event-captured, epcis-event-persisted, epcis-event-validated_failure, epcis-event-validated_success] 
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Received error code INCOMPLETE_SOURCE_TOPIC_METADATA. Missing metadata for source topics. Check the group leader logs for details.
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.cl.co.in.ConsumerRebalanceListenerInvoker] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) [Consumer clientId=openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1-consumer, groupId=openepcis-quarkus-rest-api-ce-streams] User provided listener org.apache.kafka.streams.processor.internals.StreamsRebalanceListener failed on invocation of onPartitionsAssigned for partitions []: org.apache.kafka.streams.errors.MissingSourceTopicException: One or more source topics were missing during rebalance
+	at org.apache.kafka.streams.processor.internals.StreamsRebalanceListener.onPartitionsAssigned(StreamsRebalanceListener.java:61)
+	at org.apache.kafka.clients.consumer.internals.ConsumerRebalanceListenerInvoker.invokePartitionsAssigned(ConsumerRebalanceListenerInvoker.java:65)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.onJoinComplete(ConsumerCoordinator.java:425)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.joinGroupIfNeeded(AbstractCoordinator.java:504)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureActiveGroup(AbstractCoordinator.java:415)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.poll(ConsumerCoordinator.java:511)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.updateAssignmentMetadataIfNeeded(ClassicKafkaConsumer.java:657)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.poll(ClassicKafkaConsumer.java:616)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.poll(ClassicKafkaConsumer.java:596)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:874)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollRequests(StreamThread.java:1276)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollPhase(StreamThread.java:1224)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runOnceWithoutProcessingThreads(StreamThread.java:957)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runLoop(StreamThread.java:712)
+	at org.apache.kafka.streams.processor.internals.StreamThread.run(StreamThread.java:671)
+
+2025-05-05 09:45:02 ERROR [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Encountered the following exception during processing and the registered exception handler opted to SHUTDOWN_CLIENT. The streams client is going to shut down now. : org.apache.kafka.streams.errors.MissingSourceTopicException: One or more source topics were missing during rebalance
+	at org.apache.kafka.streams.processor.internals.StreamsRebalanceListener.onPartitionsAssigned(StreamsRebalanceListener.java:61)
+	at org.apache.kafka.clients.consumer.internals.ConsumerRebalanceListenerInvoker.invokePartitionsAssigned(ConsumerRebalanceListenerInvoker.java:65)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.onJoinComplete(ConsumerCoordinator.java:425)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.joinGroupIfNeeded(AbstractCoordinator.java:504)
+	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureActiveGroup(AbstractCoordinator.java:415)
+	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.poll(ConsumerCoordinator.java:511)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.updateAssignmentMetadataIfNeeded(ClassicKafkaConsumer.java:657)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.poll(ClassicKafkaConsumer.java:616)
+	at org.apache.kafka.clients.consumer.internals.ClassicKafkaConsumer.poll(ClassicKafkaConsumer.java:596)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:874)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollRequests(StreamThread.java:1276)
+	at org.apache.kafka.streams.processor.internals.StreamThread.pollPhase(StreamThread.java:1224)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runOnceWithoutProcessingThreads(StreamThread.java:957)
+	at org.apache.kafka.streams.processor.internals.StreamThread.runLoop(StreamThread.java:712)
+	at org.apache.kafka.streams.processor.internals.StreamThread.run(StreamThread.java:671)
+
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] State transition from REBALANCING to PENDING_ERROR
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] State transition from STARTING to PENDING_SHUTDOWN
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Informed to shut down
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Shutting down unclean
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Shutting down 1 stream threads
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.DefaultStateUpdater] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) state-updater [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StateUpdater-1] Shutting down state updater thread
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.DefaultStateUpdater] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StateUpdater-1) state-updater [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StateUpdater-1] State updater thread stopped
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.TaskManager] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Shutdown complete
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] State transition from PENDING_SHUTDOWN to DEAD
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.StreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1) stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-StreamThread-1] Shutdown complete
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Shutdown 1 stream threads complete
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Shutting down the global stream threads
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.GlobalStreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) global-stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread] State transition from RUNNING to PENDING_SHUTDOWN
+2025-05-05 09:45:02 INFO  [, ] [or.ap.ka.st.pr.in.GlobalStreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) global-stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread] Shutting down
+2025-05-05 09:45:03 INFO  [, ] [or.ap.ka.st.pr.in.GlobalStreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) global-stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread] State transition from PENDING_SHUTDOWN to DEAD
+2025-05-05 09:45:03 ERROR [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Global thread has died. The streams application or client will now close to ERROR.
+2025-05-05 09:45:03 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Skipping shutdown since we are already in PENDING_ERROR
+2025-05-05 09:45:03 INFO  [, ] [or.ap.ka.st.pr.in.GlobalStreamThread] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread) global-stream-thread [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-GlobalStreamThread] Shutdown complete
+2025-05-05 09:45:03 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Shutdown global stream threads complete
+2025-05-05 09:45:03 INFO  [, ] [or.ap.ka.st.KafkaStreams] (openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c-CloseThread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] State transition from PENDING_ERROR to ERROR
+2025-05-05 09:45:37 INFO  [, ] [or.ap.ka.st.KafkaStreams] (Shutdown thread) stream-client [openepcis-quarkus-rest-api-ce-streams-ddbf3606-6b1c-4b32-ba2a-95f8502d083c] Streams client is already in the terminal ERROR state, all resources are closed and the client has stopped.
+2025-05-05 09:45:37 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-consumer-thread-0) SRMSG18224: Executing consumer revoked re-balance listener for group 'epc-consumer-group'
+2025-05-05 09:45:37 INFO  [, ] [io.sm.re.me.kafka] (smallrye-kafka-consumer-thread-1) SRMSG18224: Executing consumer revoked re-balance listener for group 'streaming-consumer-group'
+2025-05-05 09:45:38 INFO  [, ] [io.quarkus] (Shutdown thread) openepcis-quarkus-rest-api-ce stopped in 0.674s

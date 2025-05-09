@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 
+import java.io.InputStream;
 import java.util.function.Consumer;
 
 /**
@@ -24,6 +25,7 @@ public class ReactiveEPCISClient {
 
   @Inject
   ObjectMapper objectMapper;  // Used for mapping JSON responses to EPCISQueryDocument objects
+
 
   /**
    * Creates a reactive stream of {@link EPCISQueryDocument} based on the query built using the provided builder.

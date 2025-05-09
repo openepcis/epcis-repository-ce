@@ -1,0 +1,180 @@
+#
+# Copyright 2022-2023 benelog GmbH & Co. KG
+#
+#     Licensed under the Apache License, Version 2.0 (the "License");
+#     you may not use this file except in compliance with the License.
+#     You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#     Unless required by applicable law or agreed to in writing, software
+#     distributed under the License is distributed on an "AS IS" BASIS,
+#     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#     See the License for the specific language governing permissions and
+#     limitations under the License.
+#
+s3:
+  bucket: openepcis
+  xsd-schema-key-prefix: "xsd-schema/"
+  json-schema-key-prefix: "json-schema/"
+  document-key-prefix-date-format: "'capture-document/'yyyy/MM/dd/"
+
+storage:
+  factory-name: "noop"
+  bucket: openepcis
+  document-key-prefix-date-format: "'capture-document/'yyyy/MM/dd/"
+  event-key-prefix-date-format: "'epcis-event/'yyyy/MM/dd/"
+  json-schema-key-prefix: "json-schema/"
+app:
+  http:
+    connect-timeout-in-seconds: 20
+
+  gs1:
+    cbv:
+      version: 2.0.0
+      min: 1.2.2
+      max: 2.0.0
+      extensions:
+    vendor:
+      json-ld-known-constructs: ns.gs1.org/epcis/, http://purl.org/dc/terms, @id, @type, owl:versionInfo
+      version: 999-SNAPSHOT
+  event:
+    hashgenerator:
+      url: https://event-hash-generator.openepcis.io/hash
+    event-access-role: query
+  error-declaration-event-retriever:
+    count: 20
+  subscription:
+    streaming-interval: 5
+    per-page: 100
+  roles:
+    filter:
+      - query
+      - capture
+
+
+capture:
+  # Number of events allowed per capture request
+  limit: "100"
+  # Maximum file size per capture request (Specified in bytes)
+  file-size-limit: "100000"
+
+scriptengine:
+  pool-size: 2
+
+repository:
+  user:
+    default-group: "query"
+    default-user: "openepcis-admin"
+    extension:
+      fields:
+        index: user-extension-fields
+      schema:
+        index: user-extension-schema
+  epcis:
+    event:
+      index: epcis-event
+    query:
+      index: epcis-query
+    subscription:
+      index: epcis-subscription
+    streaming:
+      subscription: epcis-percolator-queries
+    next-page-token-ttl: 1m
+    per-page-default: 30
+    per-page-max: 100
+    top-level:
+      per-page-default: 100
+      per-page-max: 1000
+  capture:
+    job:
+      index: capture-job
+  epc:
+    index: epc
+
+quarkus:
+  oidc:
+    enabled: false
+#  otel:
+#    enabled: false
+  arc:
+    unremovable-types: io.quarkus.security.spi.runtime.SecurityCheckStorage
+  #    exclude-dependency:
+  #      eclipse-moxy:
+  #        group-id: org.eclipse.persistence
+  #        artifact-id: org.eclipse.persistence.moxy
+
+  log:
+    level: INFO
+    category:
+      "org.opensearch.client.RestClient":
+        level: ERROR
+      "io.smallrye.openapi.runtime.scanner.spi":
+        level: ERROR
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%X{traceId}, %X{spanId}] [%c{2.}] (%t) %s%e%n"
+  swagger-ui:
+    always-include: true
+    theme: original
+  health:
+    openapi:
+      included: true
+  smallrye-health:
+    ui:
+      always-include: true
+  console:
+    color: true
+
+  opensearch:
+    hosts: "${QUARKUS_OPENSEARCH_HOSTS:localhost:9200}"
+    protocol: "http"
+    ssl:
+      verify: false
+  cache:
+    caffeine:
+      "capture-job-status-message":
+        initial-capacity: 10
+        maximum-size: 100
+        expire-after-write: "0.2S"
+      "jsonld-expand-document-cache":
+        initial-capacity: 10
+        maximum-size: 1000
+        expire-after-write: "5M"
+
+  kafka-streams:
+    bootstrap-servers: ${kafka.bootstrap.servers}
+    application-server: localhost:8080
+    topics: epcis-event-captured
+    application-id: ${quarkus.application.name}-streams
+
+  http:
+    cors:
+      enabled: true
+      origins: "/.*/"
+      exposed-headers: "Location,Link"
+    auth:
+      policy:
+        capture-policy:
+          permissions:
+            capture: capture
+        query-policy:
+          permissions:
+            query: query
+        admin-policy:
+          permissions:
+            admin: admin
+      permission:
+        public:
+          paths:
+            - "/"
+            - "/"
+          policy: permit
+
+
+
+  otel:
+    enabled: false
+kafka-streams:
+  num:
+    stream:
+      threads: "1"

@@ -92,7 +92,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+            <artifactId>quarkus-rest-jackson</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>javax.xml.bind</groupId>
