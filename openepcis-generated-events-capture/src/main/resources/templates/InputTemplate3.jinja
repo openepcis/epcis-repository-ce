@@ -1,0 +1,151 @@
+{
+    "events": [
+        {
+            "nodeId": 2,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "ADD",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "specificTime": "{{ now }}"
+            },
+            "businessStep": "COMMISSIONING",
+            "disposition": "ACTIVE",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123456"
+            },
+            "bizLocation": {
+                "type": "SGLN",
+                "gln": "9521141000100"
+            },
+            "ilmd": [
+                {
+                    "extensionID": 0,
+                    "prefix": "gs1",
+                    "contextURL": "https://gs1.org/voc/",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "identifierId": 1,
+                    "epcCount": {{ epcCount }},
+                    "inheritParentCount": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 3,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "OBSERVE",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "SHIPPING",
+            "disposition": "IN_TRANSIT",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141456123"
+            },
+            "ilmd": [
+                {
+                    "extensionID": 3915,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 2,
+                    "epcCount": {{ epcCount }},
+                    "inheritParentCount": 0,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 4,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "OBSERVE",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "RECEIVING",
+            "disposition": "IN_PROGRESS",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9522565856417"
+            },
+            "ilmd": [
+                {
+                    "extensionID": 6343,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 3,
+                    "epcCount": {{ epcCount }},
+                    "inheritParentCount": 0,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        }
+    ],
+    "identifiers": [
+        {
+            "identifierId": 1,
+            "objectIdentifierSyntax": "WebURI",
+            "instanceData": {
+                "sgtin": {
+                    "identifierType": "sgtin",
+                    "serialType": "range",
+                    "sgtin": "09521568251228",
+                    "rangeFrom": 100
+                }
+            },
+            "classData": null,
+            "parentData": null
+        }
+    ],
+    "randomGenerators": [],
+    "contextUrls": []
+}

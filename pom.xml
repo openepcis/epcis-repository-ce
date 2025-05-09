@@ -16,7 +16,8 @@
         limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -62,6 +63,7 @@
     <modules>
         <module>openepcis-rest-api-common</module>
         <module>openepcis-client</module>
+        <module>openepcis-generated-events-capture</module>
     </modules>
 
     <build>
@@ -99,111 +101,146 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Client openepcis-client -->
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-client</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+
+            <!-- Generated Events Capture openepcis-generated-events-capture -->
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-generated-events-capture</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-s3</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-event-hash-generator</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-capture-kafka-core</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-service-api</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-custom-extension-service</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-capture-common</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-capture-kafka-streams</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-capture-service</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-repository-api</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-repository-common</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-repository-es</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-query-service</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-query-subscription</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-model-rest</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-model-core</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-model-epcis</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis.quarkus</groupId>
                 <artifactId>quarkus-openepcis-model</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis.quarkus</groupId>
                 <artifactId>quarkus-openepcis-model-deployment</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-query</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-identity</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-epc-digitallink-translator</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-rest-api-common</artifactId>
@@ -215,54 +252,58 @@
                 <artifactId>openepcis-document-converter</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-document-converter-sax</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>quarkus-auth-keycloak</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>quarkus-service-main</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>keycloak-api-key-rest-client</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-jdbc-postgresql</artifactId>
                 <version>${quarkus.platform.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-subscription-job-runnr</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-subscription-streaming</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-subscription-core</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.openepcis</groupId>
                 <artifactId>openepcis-opentelemetry-logging</artifactId>
-                <version>${project.parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.openepcis</groupId>
-                <artifactId>openepcis-client</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
         </dependencies>

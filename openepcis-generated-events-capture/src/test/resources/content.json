@@ -1,0 +1,10 @@
+{
+  "eventCount1" : 10,
+  "eventCount2" : 5,
+  "fromTime" : "2023-01-01T01:00+01:00",
+  "toTime" : "2023-01-30T18:00+01:00",
+  "customOffsetFrom": 10,
+  "customOffsetTo": 50,
+  "classCount1" : 100,
+  "classCount2" : 50
+}

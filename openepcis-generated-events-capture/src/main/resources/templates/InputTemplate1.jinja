@@ -1,0 +1,243 @@
+{
+    "events": [
+        {
+            "nodeId": 3,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "ADD",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "specificTime": "{{ now }}"
+            },
+            "businessStep": "COMMISSIONING",
+            "disposition": "ACTIVE",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123456"
+            },
+            "bizLocation": {
+                "type": "SGLN",
+                "gln": "9521141000100"
+            },
+            "ilmd": [
+                {
+                    "extensionID": 3702,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "identifierId": 1,
+                    "epcCount": 1,
+                    "inheritParentCount": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 4,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "ADD",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "specificTime": "{{ now }}"
+            },
+            "businessStep": "COMMISSIONING",
+            "disposition": "ACTIVE",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123456"
+            },
+            "bizLocation": {
+                "type": "SGLN",
+                "gln": "9521141000100"
+            },
+            "ilmd": [
+                {
+                    "extensionID": 8367,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "identifierId": 2,
+                    "epcCount": {{ epcCount }},
+                    "inheritParentCount": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 5,
+            "eventType": "AggregationEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "ADD",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "PACKING",
+            "disposition": "IN_PROGRESS",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123456"
+            },
+            "bizLocation": {
+                "type": "SGLN",
+                "gln": "9521141000100"
+            },
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 3,
+                    "epcCount": 0,
+                    "inheritParentCount": 1,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                },
+                {
+                    "parentNodeId": 4,
+                    "epcCount": {{ epcCount }},
+                    "inheritParentCount": 0,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 6,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "OBSERVE",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "SHIPPING",
+            "disposition": "IN_TRANSIT",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141456123"
+            },
+            "bizTransactions": [
+                {
+                    "ID": 0,
+                    "type": "po",
+                    "bizTransaction": "urn:epcglobal:cbv:bt:5012345678900:1234"
+                },
+                {
+                    "ID": 1,
+                    "type": "inv",
+                    "bizTransaction": "urn:epcglobal:cbv:bt:0614141111114:9876"
+                }
+            ],
+            "sources": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9521141111116",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "destinations": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9521345678903",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "ilmd": [
+                {
+                    "extensionID": 7618,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 5,
+                    "epcCount": 0,
+                    "inheritParentCount": 1,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": 0,
+                    "quantity": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        }
+    ],
+    "identifiers": [
+        {
+            "identifierId": 1,
+            "objectIdentifierSyntax": "WebURI",
+            "instanceData": {
+                "sscc": {
+                    "identifierType": "sscc",
+                    "serialType": "range",
+                    "gcp": "9521141",
+                    "rangeFrom": {{ rangeFrom1 }}
+                }
+            },
+            "classData": null,
+            "parentData": null
+        },
+        {
+            "identifierId": 2,
+            "objectIdentifierSyntax": "WebURI",
+            "instanceData": {
+                "sgtin": {
+                    "identifierType": "sgtin",
+                    "serialType": "range",
+                    "sgtin": "09521568256452",
+                    "rangeFrom": {{ rangeFrom2 }}
+                }
+            },
+            "classData": null,
+            "parentData": null
+        }
+    ],
+    "randomGenerators": [],
+    "contextUrls": []
+}

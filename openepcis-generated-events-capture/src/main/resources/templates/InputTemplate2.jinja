@@ -1,0 +1,310 @@
+{
+    "events": [
+        {
+            "nodeId": 2,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "ADD",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+05:30",
+                "specificTime": "{{ now }}"
+            },
+            "businessStep": "CREATING_CLASS_INSTANCE",
+            "disposition": "ACTIVE",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123456"
+            },
+            "bizLocation": {
+                "type": "SGLN",
+                "gln": "9521141000100"
+            },
+            "ilmd": [
+                {
+                    "extensionID": 6800,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "identifierId": 1,
+                    "epcCount": 0,
+                    "inheritParentCount": 0,
+                    "classCount": {{ classCount1 }},
+                    "quantity": 20
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 3,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount2 }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "OBSERVE",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "SHIPPING",
+            "disposition": "IN_TRANSIT",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123999"
+            },
+            "sources": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9522141123100",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "destinations": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9522543500100",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "ilmd": [
+                {
+                    "extensionID": 6924,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 2,
+                    "epcCount": 0,
+                    "inheritParentCount": 0,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": {{ classCount2 }},
+                    "quantity": 10
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 4,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "OBSERVE",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "SHIPPING",
+            "disposition": "IN_TRANSIT",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9521141123999"
+            },
+            "sources": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9522141123100",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "destinations": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9522543500100",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "ilmd": [
+                {
+                    "extensionID": 2566,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 2,
+                    "epcCount": 0,
+                    "inheritParentCount": 0,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": {{ classCount2 }},
+                    "quantity": 10
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        },
+        {
+            "nodeId": 5,
+            "eventType": "ObjectEvent",
+            "eventCount": {{ eventCount2 }},
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "ordinaryEvent": true,
+            "action": "OBSERVE",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+01:00",
+                "customOffsetFrom": {{ customOffsetFrom }},
+                "customOffsetTo": {{ customOffsetTo }},
+                "customOffsetType": "minutes"
+            },
+            "businessStep": "RECEIVING",
+            "disposition": "IN_PROGRESS",
+            "readPoint": {
+                "type": "SGLN",
+                "gln": "9522543599199"
+            },
+            "sources": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9522141123100",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "destinations": [
+                {
+                    "type": "OWNING_PARTY",
+                    "glnType": "SGLN",
+                    "gln": "9522543500100",
+                    "extension": 0,
+                    "ID": 0
+                }
+            ],
+            "ilmd": [
+                {
+                    "extensionID": 8762,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "parentNodeId": 3,
+                    "epcCount": 0,
+                    "inheritParentCount": 0,
+                    "inheritParentToEPC": 0,
+                    "inheritEPCToParent": 0,
+                    "classCount": 1,
+                    "quantity": 20
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        }
+    ],
+    "identifiers": [
+        {
+            "identifierId": 1,
+            "objectIdentifierSyntax": "WebURI",
+            "instanceData": null,
+            "classData": {
+                "lgtin": {
+                    "identifierType": "lgtin",
+                    "quantityType": "Variable Measure Quantity",
+                    "serialType": "random",
+                    "lgtin": "09521568256452",
+                    "serialNumber": "12",
+                    "quantity": 20,
+                    "uom": "KGM"
+                }
+            },
+            "parentData": null
+        }
+    ],
+    "randomGenerators": [
+        {
+            "name": "RandomGen-1",
+            "minValue": 10,
+            "maxValue": 20,
+            "meanValue": 12,
+            "seedValue": 1723642951657,
+            "distributionType": "TriangularDistribution",
+            "randomID": 2
+        },
+        {
+            "name": "RandomGen-2",
+            "description": "Test",
+            "minValue": 10,
+            "maxValue": 20,
+            "meanValue": 12,
+            "seedValue": 1723640844430,
+            "distributionType": "TriangularDistribution",
+            "randomID": 1
+        },
+        {
+            "name": "RandomGen-3",
+            "description": "This is Randome Generator 3",
+            "minValue": 100,
+            "maxValue": 200,
+            "meanValue": 120,
+            "seedValue": 1738855467925,
+            "distributionType": "TriangularDistribution",
+            "randomID": 3
+        }
+    ],
+    "contextUrls": [
+        {
+            "contextURL": "https://ex1.com",
+            "prefix": "ex1",
+            "ID": 1,
+            "isChecked": false
+        },
+        {
+            "contextURL": "https://ex2.com",
+            "prefix": "ex2",
+            "ID": 2,
+            "isChecked": false
+        },
+        {
+            "contextURL": "https://ex3.com",
+            "prefix": "ext3",
+            "ID": 4
+        },
+        {
+            "contextURL": "https://ex4.com",
+            "prefix": "ext4",
+            "ID": 5
+        },
+        {
+            "contextURL": "https://tn.example.com",
+            "prefix": "tn",
+            "ID": 3,
+            "isChecked": false
+        }
+    ]
+}
