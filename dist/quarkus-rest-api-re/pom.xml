@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>io.openepcis</groupId>
-            <artifactId>quarkus-capture-topology-ce</artifactId>
+            <artifactId>quarkus-capture-topology</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

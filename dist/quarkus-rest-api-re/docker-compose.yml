@@ -1,16 +1,20 @@
 services:
   quarkus-rest-api:
-    image: docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-rd:999-SNAPSHOT
+    image: docker.io/docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-rd:999-SNAPSHOT
     container_name: quarkus-rest-api
     environment:
       - "QUARKUS_OPENSEARCH_HOSTS=opensearch-node-01:9200"
       - "KAFKA_BOOTSTRAP_SERVERS=openepcis-kafka:9092"
+    restart: on-failure
+    depends_on:
+      - opensearch-node-01
+      - openepcis-kafka
     ports:
       - 8080:8080
     networks:
       - openepcis-net
   opensearch-node-01:
-    image: opensearchproject/opensearch:2.17.1
+    image: docker.io/opensearchproject/opensearch:2.17.1
     container_name: opensearch-node-01
     environment:
       - cluster.name=openepcis-cluster
