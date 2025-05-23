@@ -47,18 +47,18 @@ jobs:
             -Dquarkus.jib.base-jvm-image=ghcr.io/graalvm/graalvm-community:23.0.2 \
             -Dquarkus.jib.jvm-arguments=-Dio.openepcis.identifiers.converter.DefaultGCPLengthProvider.defaultGcpLength=9
 
+      - name: Push community edition image to GHCR
+        run: docker push ${{ env.IMAGE_NAME_CE }}:${{ matrix.tag }}
+
+      - name: Push research edition image to GHCR
+        run: docker push ${{ env.IMAGE_NAME_RE }}:${{ matrix.tag }}
+
   manifest:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Push community edition image to GHCR
-        run: docker push ${{ env.IMAGE_NAME_CE }}:${{ matrix.tag }}
-
-      - name: Push research edition image to GHCR
-        run: docker push ${{ env.IMAGE_NAME_RE }}:${{ matrix.tag }}
 
       - name: Create and push multi-arch manifest
         run: |
