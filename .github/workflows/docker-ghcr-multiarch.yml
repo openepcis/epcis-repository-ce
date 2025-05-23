@@ -1,0 +1,63 @@
+name: Build and Push to GHCR (Multi-Arch)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'distributions/**'
+      - '.github/workflows/docker-ghcr-multiarch.yml'
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/openepcis-rest-api
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, arm64/v8]
+        include:
+          - arch: amd64
+            tag: stable-amd64
+          - arch: arm64/v8
+            tag: stable-arm64
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Authenticate to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build container image (Quarkus Jib)
+        run: |
+          mvn clean package -f distributions/pom.xml \
+            -Dquarkus.container-image.build=true \
+            -Dquarkus.container-image.group=${{ github.repository_owner }} \
+            -Dquarkus.container-image.registry=ghcr.io \
+            -Dquarkus.container-image.additional-tags=${{ matrix.tag }} \
+            -Dquarkus.jib.platforms=linux/${{ matrix.arch }} \
+            -Dquarkus.jib.base-jvm-image=ghcr.io/graalvm/graalvm-community:23.0.2 \
+            -Dquarkus.jib.jvm-arguments=-Dio.openepcis.identifiers.converter.DefaultGCPLengthProvider.defaultGcpLength=9
+
+      - name: Push platform image to GHCR
+        run: docker push ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
+
+  manifest:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Create and push multi-arch manifest
+        run: |
+          docker manifest create ${{ env.IMAGE_NAME }}:stable \
+            --amend ${{ env.IMAGE_NAME }}:stable-amd64 \
+            --amend ${{ env.IMAGE_NAME }}:stable-arm64
+          docker manifest push ${{ env.IMAGE_NAME }}:stable

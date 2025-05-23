@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2022-2024 benelog GmbH & Co. KG
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+-->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-repository-ce</artifactId>
+        <version>999-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>openepcis-distribution-parent</artifactId>
+
+    <packaging>pom</packaging>
+
+    <name>openepcis-dist-parent</name>
+    <description>Quarkus OpenEPCIS Distribution Parent</description>
+    <url>https://github.com/openepcis</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Sven Boeckelmann</name>
+            <email>sven.boeckelmann@benelog.com</email>
+            <organization>benelog GmbH &amp; Co. KG</organization>
+            <organizationUrl>https://www.benelog.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/openepcis/openepcis-model.git</connection>
+        <developerConnection>scm:git:ssh://github.com:openepcis/openepcis-model.git</developerConnection>
+        <url>https://github.com/openepcis/openepcis-model/tree/main</url>
+    </scm>
+
+    <modules>
+        <module>../modules/quarkus-capture-topology-ce</module>
+        <module>../modules/quarkus-rest-application-ce</module>
+        <module>community-edition</module>
+        <module>research-edition</module>
+    </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-storage-service</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-event-hash-generator</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-capture-kafka-core</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-service-api</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-custom-extension-service</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-repository-api</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-repository-common</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-storage-service</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-model-rest</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-model-core</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-model-epcis</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-query</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-document-converter</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>quarkus-service-main</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-subscription-streaming</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

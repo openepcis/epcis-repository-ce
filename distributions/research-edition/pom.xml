@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright (c) 2022-2024 benelog GmbH & Co. KG
+    All rights reserved.
+
+    Unauthorized copying, modification, distribution,
+    or use of this work, via any medium, is strictly prohibited.
+
+    benelog GmbH & Co. KG reserves all rights not expressly granted herein,
+    including the right to sell licenses for using this work.
+
+-->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-distribution-parent</artifactId>
+        <version>999-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>openepcis-quarkus-rest-api-rd</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.openepcis</groupId>
+            <artifactId>quarkus-capture-topology-ce</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.openepcis</groupId>
+            <artifactId>quarkus-rest-application-ce</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.openepcis</groupId>
+            <artifactId>openepcis-reactive-event-publisher</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- This dependency requires a valid benelog license for production use -->
+        <dependency>
+            <groupId>io.openepcis</groupId>
+            <artifactId>openepcis-document-converter-sax</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>generate-code</goal>
+                            <goal>generate-code-tests</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-extension-maven-plugin</artifactId>
+                <configuration>
+                    <parentFirstArtifacts>
+                        <parentFirstArtifact>io.quarkus:quarkus-bootstrap-core</parentFirstArtifact>
+                        <parentFirstArtifact>io.quarkus:quarkus-development-mode-spi</parentFirstArtifact>
+                        <parentFirstArtifact>org.jboss.logmanager:jboss-logmanager-embedded</parentFirstArtifact>
+                        <parentFirstArtifact>org.jboss.logging:jboss-logging</parentFirstArtifact>
+                        <parentFirstArtifact>jakarta.xml.bind:jakarta.xml.bind-api</parentFirstArtifact>
+                        <parentFirstArtifact>jakarta.ws.rs:jakarta.ws.rs-api</parentFirstArtifact>
+                    </parentFirstArtifacts>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
