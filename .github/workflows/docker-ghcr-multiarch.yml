@@ -9,7 +9,7 @@ on:
 
 env:
   IMAGE_NAME_CE: ghcr.io/${{ github.repository_owner }}/openepcis-quarkus-rest-api-ce
-  IMAGE_NAME_RD: ghcr.io/${{ github.repository_owner }}/openepcis-quarkus-rest-api-rd
+  IMAGE_NAME_RE: ghcr.io/${{ github.repository_owner }}/openepcis-quarkus-rest-api-re
 
 jobs:
   build-and-push:

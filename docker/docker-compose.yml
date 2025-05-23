@@ -21,7 +21,7 @@ services:
 
   quarkus-rest-api-rd:
     <<: *rest-api-common
-    image: docker.io/docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-rd:999-SNAPSHOT
+    image: docker.io/docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-re:999-SNAPSHOT
     container_name: quarkus-rest-api-rd
     profiles: ["rest-api-rd"]
 

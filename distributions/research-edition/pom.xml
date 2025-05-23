@@ -22,7 +22,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>openepcis-quarkus-rest-api-rd</artifactId>
+    <artifactId>openepcis-quarkus-rest-api-re</artifactId>
 
     <dependencies>
         <dependency>
