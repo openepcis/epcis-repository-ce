@@ -8,7 +8,8 @@ on:
       - '.github/workflows/docker-ghcr-multiarch.yml'
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/openepcis-rest-api
+  IMAGE_NAME_CE: ghcr.io/${{ github.repository_owner }}/openepcis-quarkus-rest-api-ce
+  IMAGE_NAME_RD: ghcr.io/${{ github.repository_owner }}/openepcis-quarkus-rest-api-rd
 
 jobs:
   build-and-push:
@@ -36,7 +37,8 @@ jobs:
 
       - name: Build container image (Quarkus Jib)
         run: |
-          mvn clean package -f distributions/pom.xml \
+          mvn -B --no-transfer-progress \
+            clean package -f distributions/pom.xml \
             -Dquarkus.container-image.build=true \
             -Dquarkus.container-image.group=${{ github.repository_owner }} \
             -Dquarkus.container-image.registry=ghcr.io \
@@ -45,9 +47,6 @@ jobs:
             -Dquarkus.jib.base-jvm-image=ghcr.io/graalvm/graalvm-community:23.0.2 \
             -Dquarkus.jib.jvm-arguments=-Dio.openepcis.identifiers.converter.DefaultGCPLengthProvider.defaultGcpLength=9
 
-      - name: Push platform image to GHCR
-        run: docker push ${{ env.IMAGE_NAME }}:${{ matrix.tag }}
-
   manifest:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -55,9 +54,19 @@ jobs:
       - name: Authenticate to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - name: Push community edition image to GHCR
+        run: docker push ${{ env.IMAGE_NAME_CE }}:${{ matrix.tag }}
+
+      - name: Push research edition image to GHCR
+        run: docker push ${{ env.IMAGE_NAME_RE }}:${{ matrix.tag }}
+
       - name: Create and push multi-arch manifest
         run: |
-          docker manifest create ${{ env.IMAGE_NAME }}:stable \
-            --amend ${{ env.IMAGE_NAME }}:stable-amd64 \
-            --amend ${{ env.IMAGE_NAME }}:stable-arm64
-          docker manifest push ${{ env.IMAGE_NAME }}:stable
+          docker manifest create ${{ env.IMAGE_NAME_CE }}:stable \
+            --amend ${{ env.IMAGE_NAME_CE }}:stable-amd64 \
+            --amend ${{ env.IMAGE_NAME_CE }}:stable-arm64
+          docker manifest push ${{ env.IMAGE_NAME_CE }}:stable
+          docker manifest create ${{ env.IMAGE_NAME_RE }}:stable \
+            --amend ${{ env.IMAGE_NAME_RE }}:stable-amd64 \
+            --amend ${{ env.IMAGE_NAME_RE }}:stable-arm64
+          docker manifest push ${{ env.IMAGE_NAME_RE }}:stable
