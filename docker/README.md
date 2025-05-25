@@ -25,7 +25,7 @@ Start REST API:
 
 ```bash
 docker compose --profile rest-api-ce up -d   # Community Edition
-docker compose --profile rest-api-rd up -d   # Research Edition
+docker compose --profile rest-api-re up -d   # Research Edition
 ```
 
 > Podman is also supported: use `podman-compose` as a drop-in replacement.

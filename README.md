@@ -103,10 +103,10 @@ podman-compose up -d
 podman-compose --profile init run --rm kafkasetup
 
 # Start the REST API (Community Edition)
-podman-compose --profile rest-api-ce up -d
+podman-compose up quarkus-rest-api-ce
 
 # Or run the Research Edition
-podman-compose --profile rest-api-rd up -d
+podman-compose up quarkus-rest-api-re
 ```
 
 ---
@@ -132,13 +132,10 @@ docker compose up -d
 docker compose --profile init run --rm kafkasetup
 
 # Start the REST API (Community Edition)
-docker compose --profile rest-api-ce up -d
-```
+docker compose up quarkus-rest-api-ce
 
-#### Optional: Start Research Edition
-
-```bash
-docker compose --profile rest-api-rd up -d
+# Or run the Research Edition
+docker compose up quarkus-rest-api-re
 ```
 
 ---
@@ -216,9 +213,9 @@ Grafana is ideal if you're already using it in your observability stack or want 
 
 ## Learn More
 
-- [GS1 EPCIS 2.0 Standard](https://www.gs1.org/standards/epcis)
-- [GS1 Core Business Vocabulary (CBV)](https://www.gs1.org/standards/epcis-and-cbv)
-- [GS1 Digital Link](https://www.gs1.org/standards/Digital-Link/)
+- [GS1 EPCIS 2.0 Standard](https://ref.gs1.org/standards/epcis/)
+- [GS1 Core Business Vocabulary (CBV)](https://ref.gs1.org/standards/cbv/)
+- [GS1 Digital Link](https://ref.gs1.org/standards/digital-link/)
 - [Quarkus](https://quarkus.io/)
 - [Kafka](https://kafka.apache.org/)
 - [OpenSearch](https://opensearch.org/)
@@ -242,4 +239,3 @@ The **OpenEPCIS Community Edition** is released under the [Apache 2.0 License](L
 > ⚠️ Note: The **SAX-based high-performance EPCIS XML-to-JSON converter**, used in the Research Edition, is **not** covered by the Apache 2.0 license. It is distributed under a separate commercial license by **benelog GmbH & Co. KG** and **not permitted for free production use**.
 
 If you're interested in using the Research Edition or the high-performance converter in commercial environments, please [contact us](mailto:info@openepcis.io) for licensing options.
-]()

@@ -15,15 +15,15 @@ x-rest-api-commons: &rest-api-common
 services:
   quarkus-rest-api-ce:
     <<: *rest-api-common
-    image: docker.io/docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-ce:999-SNAPSHOT
+    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:stable
     container_name: quarkus-rest-api-ce
     profiles: ["rest-api-ce"]
 
-  quarkus-rest-api-rd:
+  quarkus-rest-api-re:
     <<: *rest-api-common
-    image: docker.io/docker-registry.company-group.com/openepcis/openepcis-quarkus-rest-api-re:999-SNAPSHOT
-    container_name: quarkus-rest-api-rd
-    profiles: ["rest-api-rd"]
+    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-re:stable
+    container_name: quarkus-rest-api-re
+    profiles: ["rest-api-re"]
 
   opensearch-node-01:
     image: docker.io/opensearchproject/opensearch:2.17.1
