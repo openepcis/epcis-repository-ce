@@ -15,7 +15,6 @@
 #
 
 storage:
-  factory-name: "noop"
   bucket: openepcis
   document-key-prefix-date-format: "'capture-document/'yyyy/MM/dd/"
   event-key-prefix-date-format: "'epcis-event/'yyyy/MM/dd/"

@@ -20,7 +20,8 @@ s3:
   document-key-prefix-date-format: "'capture-document/'yyyy/MM/dd/"
 
 storage:
-  factory-name: "noop"
+  factory-name: "local"
+  local-path: "/tmp/openepcis"
   bucket: openepcis
   document-key-prefix-date-format: "'capture-document/'yyyy/MM/dd/"
   event-key-prefix-date-format: "'epcis-event/'yyyy/MM/dd/"

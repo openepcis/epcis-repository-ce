@@ -37,7 +37,7 @@ import java.util.Set;
 @Slf4j
 public class AnonAuthMechanism implements HttpAuthenticationMechanism {
 
-  private static final Set<String> ROLES = Set.of("admim", "capture", "query");
+  private static final Set<String> ROLES = Set.of("admin", "capture", "query");
   private static final SecurityIdentity IDENTITY = QuarkusSecurityIdentity.builder().
           setPrincipal(new QuarkusPrincipal("admin"))
           .addRoles(ROLES)
