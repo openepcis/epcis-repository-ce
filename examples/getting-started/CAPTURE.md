@@ -99,46 +99,93 @@ If your events don’t use any custom extensions, you can skip this step.
 Use the OpenEPCIS test data generator to create a few valid events and send them directly to the repository:
 
 ```bash
-curl --header "Content-Type: application/json" "https://tools.openepcis.io/api/generateTestData?pretty=true" -d '{
-  "events": [{
-    "nodeId": 1,
-    "eventType": "ObjectEvent",
-    "eventCount": 10,
-    "locationPartyIdentifierSyntax": "WebURI",
-    "dlURL": "https://id.gs1.org",
-    "seed": 1748412892328,
-    "ordinaryEvent": true,
-    "action": "ADD",
-    "eventTime": {
-      "timeZoneOffset": "+02:00",
-      "fromTime": "2025-01-01T08:14:52+02:00",
-      "toTime": "2025-05-28T08:14:52.000+02:00"
-    },
-    "businessStep": "COMMISSIONING",
-    "disposition": "ACTIVE",
-    "certificationInfo": [{ "extensionID": 0 }],
-    "userExtensions": [{ "extensionID": 8059 }],
-    "ilmd": [{ "extensionID": 7040 }],
-    "referencedIdentifier": [{
-      "identifierId": 1,
-      "epcCount": 1,
-      "classCount": 0
-    }]
-  }],
-  "identifiers": [{
-    "identifierId": 1,
-    "objectIdentifierSyntax": "WebURI",
-    "dlURL": "https://id.gs1.org",
-    "instanceData": {
-      "sgtin": {
-        "identifierType": "sgtin",
-        "serialType": "range",
-        "sgtin": "09526545673796",
-        "rangeFrom": 1000000,
-        "count": 1
-      }
-    }
-  }]
+curl --header "Content-Type: application/json" "https://tools.openepcis.io/api/generateTestData?pretty=true" -d '
+{
+    "events": [
+        {
+            "nodeId": 1,
+            "eventType": "ObjectEvent",
+            "eventCount": 25,
+            "locationPartyIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "seed": 1748412892328,
+            "ordinaryEvent": true,
+            "action": "ADD",
+            "eventID": false,
+            "eventTime": {
+                "timeZoneOffset": "+02:00",
+                "fromTime": "2025-01-01T08:14:52+02:00",
+                "toTime": "2025-05-28T08:14:52.000+02:00"
+            },
+            "businessStep": "COMMISSIONING",
+            "disposition": "ACTIVE",
+            "certificationInfo": [
+                {
+                    "extensionID": 0,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "userExtensions": [
+                {
+                    "extensionID": 8059,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "ilmd": [
+                {
+                    "extensionID": 7040,
+                    "prefix": "",
+                    "contextURL": "",
+                    "children": []
+                }
+            ],
+            "referencedIdentifier": [
+                {
+                    "identifierId": 1,
+                    "epcCount": 1,
+                    "classCount": 0
+                }
+            ],
+            "parentReferencedIdentifier": {},
+            "outputReferencedIdentifier": []
+        }
+    ],
+    "identifiers": [
+        {
+            "identifierId": 1,
+            "objectIdentifierSyntax": "WebURI",
+            "dlURL": "https://id.gs1.org",
+            "instanceData": {
+                "sgtin": {
+                    "identifierType": "sgtin",
+                    "gcpLength": "",
+                    "serialType": "range",
+                    "sgtin": "09526545673796",
+                    "rangeFrom": 1000000,
+                    "count": 1,
+                    "ID": 1
+                }
+            },
+            "classData": null,
+            "parentData": null
+        }
+    ],
+    "randomGenerators": [
+        {
+            "name": "RND_0-1",
+            "minValue": 0,
+            "maxValue": 1,
+            "meanValue": 0.5,
+            "seedValue": 1747115247162,
+            "distributionType": "TriangularDistribution",
+            "randomID": 1
+        }
+    ],
+    "contextUrls": []
 }' -o - | curl --header "Content-Type: application/ld+json" "http://localhost:8080/capture" -d @-
 ```
 
