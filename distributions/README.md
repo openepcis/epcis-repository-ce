@@ -13,3 +13,9 @@ This folder defines Quarkus-based packaging for the main REST API editions of Op
 Each edition includes:
 - Quarkus configuration files
 - `pom.xml` for module assembly
+
+set log level for io.openepcis to debug:
+
+```shell
+export QUARKUS_LOG_CATEGORY__IO_OPENEPCIS__LEVEL=DEBUG 
+```
