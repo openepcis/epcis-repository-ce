@@ -641,7 +641,7 @@ public class CaptureContextTopology {
                                 eventValidationMessage.getEventIndex());
                           }
                         } else {
-                          Log.info("Persisting the event to OpenSearch");
+                          Log.debug("Persisting the event to Repository");
 
                           // Try to persist the event if any error/exception occurs then throw them
                           // and stop execution
