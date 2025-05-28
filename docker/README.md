@@ -4,7 +4,7 @@ This folder contains Docker Compose setups to bootstrap the full OpenEPCIS infra
 
 ## Components
 
-- **docker-compose.yml** — Launches Kafka, OpenSearch, OpenSearch Dashboards, and optionally the REST API (CE or RD).
+- **docker-compose.yml** — Launches Kafka, OpenSearch, OpenSearch Dashboards, and optionally the REST API (CE or RE).
 - **.env** — Defines the `COMPOSE_PROJECT_NAME` and can be extended for environment configuration.
 
 ## Usage
@@ -21,10 +21,15 @@ Run one-time Kafka topic setup:
 docker compose --profile init run --rm kafkasetup
 ```
 
-Start REST API:
+Start Community Edition REST API:
 
 ```bash
 docker compose --profile rest-api-ce up -d   # Community Edition
+```
+
+Or Research Edition
+
+```bash
 docker compose --profile rest-api-re up -d   # Research Edition
 ```
 
