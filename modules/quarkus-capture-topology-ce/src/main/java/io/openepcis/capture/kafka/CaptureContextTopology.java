@@ -390,7 +390,7 @@ public class CaptureContextTopology {
                                     // (channel:epcis-event-validated-success-out Topic:
                                     // epcis-event-validated_success)
                                     if (invalidEPCISEvents.isEmpty()) {
-                                      Log.info(
+                                      Log.debug(
                                           " ✅ Event validation successful, No invalid information !!! ✅ ");
                                       eventValidatedSuccessEmitter.send(
                                           Record.of(captureID, validationMessage));
@@ -398,7 +398,7 @@ public class CaptureContextTopology {
                                       // If any errors found during validation then produce
                                       // (channel:epcis-event-validated-failure-out Topic:
                                       // epcis-event-validated_failure)
-                                      Log.info(
+                                      Log.debug(
                                           " ❌ Event validation failed with invalid information !!! ❌ ");
                                       eventValidatedFailureEmitter.send(
                                           Record.of(captureID, validationMessage));
@@ -563,7 +563,7 @@ public class CaptureContextTopology {
                         // If event is above 4kb and stored in s3 then get event from s3 and
                         // continue processing
                         if (StringUtils.isBlank(eventValidationMessage.getObjectNodeString())) {
-                          Log.info(
+                          Log.debug(
                               "Getting the event with Hash >4kb from StorageService for persisting");
                           singleEventNode =
                               (ObjectNode)
@@ -573,7 +573,7 @@ public class CaptureContextTopology {
                         } else {
                           // If event below 4kb and stored as string in documentCaptureMessage then
                           // read and continue as before
-                          Log.info(
+                          Log.debug(
                               "Event with Hash <4kb from DocumentCaptureMessage objectNodeString");
                           singleEventNode =
                               (ObjectNode)
@@ -669,7 +669,7 @@ public class CaptureContextTopology {
                               .subscribe()
                               .with(
                                   item -> {
-                                    log.info(" ✅ Event persistence was successful!!! ✅ ");
+                                    log.debug(" ✅ Event persistence was successful!!! ✅ ");
 
                                     // If persistence success then write to Kafka topic (Channel:
                                     // capture-document-event-out, capture-docs-event:
@@ -687,7 +687,7 @@ public class CaptureContextTopology {
                                         Record.of(captureID, captureStatusMessage));
                                   },
                                   failure -> {
-                                    log.info(" Event persistence was failed for captureID!!! ");
+                                    log.warn(" Event persistence was failed for captureID!!! ");
 
                                     // If persistence failed then write to Kafka topic (Channel:
                                     // capture-document-event-out, capture-docs-event:
