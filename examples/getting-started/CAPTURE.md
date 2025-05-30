@@ -10,7 +10,7 @@ The OpenEPCIS repository supports capturing EPCIS 2.0 events via a simple REST A
 
 ### Prepare Backend Services
 
-Use the setup in [`/docker`](../../docker/README.md). It starts the minimal OpenEPCIS stack with:
+Use the setup in [`docker`](../../docker) directory, which you’ll find at the root of this repository. From here (`examples/getting-started/`), navigate up two levels. The Docker setup provides a preconfigured, minimal OpenEPCIS stack with:
 
 * OpenSearch + Dashboards
 * Kafka

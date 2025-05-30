@@ -78,6 +78,19 @@ modules/
 
 ## Getting Started
 
+To launch the minimal OpenEPCIS stack locally:
+
+1. Clone the repository
+2. Navigate to the `docker` directory
+3. Start the services using Docker Compose
+
+```shell
+git clone https://github.com/openepcis/epcis-repository-ce.git
+cd epcis-repository-ce/docker
+```
+
+For details on what services are included and how to configure them, refer to the [docker/README.md](docker/README.md).
+
 ### Option 1: Run via Podman
 
 > Best for pure open-source environments.
@@ -106,9 +119,6 @@ podman-compose up quarkus-rest-api-re         # Start Research Edition
 * [Docker Compose](https://docs.docker.com/compose/)
 
 ```bash
-git clone https://github.com/openepcis/epcis-repository-ce.git
-cd epcis-repository-ce
-
 docker compose up -d                          # Start Kafka, OpenSearch, Dashboards
 docker compose --profile init run --rm kafkasetup
 
