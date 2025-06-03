@@ -27,12 +27,18 @@ Start Community Edition REST API:
 
 ```shell
 podman-compose -f docker-compose.rest-api-ce.yml up -d   # Community Edition
+
+# check logs
+podman logs --tail 250 -f quarkus-rest-api-ce
 ```
 
 Or Research Edition
 
 ```shell
 podman-compose -f docker-compose.rest-api-re.yml up -d   # Research Edition
+
+# check logs
+podman logs --tail 250 -f quarkus-rest-api-re
 ```
 
 ### Setup using Docker
@@ -53,10 +59,16 @@ Start Community Edition REST API:
 
 ```shell
 docker compose -f docker-compose.rest-api-ce.yml up -d   # Community Edition
+
+# check logs
+docker logs --tail 250 -f quarkus-rest-api-ce
 ```
 
 Or Research Edition
 
 ```shell
 docker compose -f docker-compose.rest-api-re.yml up -d   # Research Edition
+
+# check logs
+docker logs --tail 250 -f quarkus-rest-api-re
 ```

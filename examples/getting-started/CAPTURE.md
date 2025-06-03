@@ -40,11 +40,17 @@ Choose one of the following editions:
 ```bash
 # Start Research Edition (SAX-based)
 podman-compose -f docker-compose.rest-api-re.yml up -d
+
+# check logs
+podman logs --tail 250 -f quarkus-rest-api-re
 ```
 
 ```bash
 # OR: Start Community Edition (XSLT-based)
 podman-compose -f docker-compose.rest-api-ce.yml up -d
+
+# check logs
+podman logs --tail 250 -f quarkus-rest-api-ce
 ```
 
 #### Option 2: Run from Source (for Development/Debug)
