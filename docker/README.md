@@ -9,28 +9,54 @@ This folder contains Docker Compose setups to bootstrap the full OpenEPCIS infra
 
 ## Usage
 
+### Setup using Podman
+
 Start core infrastructure:
 
-```bash
+```shell
+podman-compose -f docker-compose.yml up -d
+```
+
+Run one-time Kafka topic setup:
+
+```shell
+podman-compose -f docker-compose.kafka-setup.yml run
+```
+
+Start Community Edition REST API:
+
+```shell
+podman-compose -f docker-compose.rest-api-ce.yml up -d   # Community Edition
+```
+
+Or Research Edition
+
+```shell
+podman-compose -f docker-compose.rest-api-re.yml up -d   # Research Edition
+```
+
+### Setup using Docker
+
+Start core infrastructure:
+
+```shell
 docker compose up -d
 ```
 
 Run one-time Kafka topic setup:
 
-```bash
-docker compose --profile init run --rm kafkasetup
+```shell
+docker compose -f docker-compose.kafka-setup.yml run
 ```
 
 Start Community Edition REST API:
 
-```bash
-docker compose --profile rest-api-ce up -d   # Community Edition
+```shell
+docker compose -f docker-compose.rest-api-ce.yml up -d   # Community Edition
 ```
 
 Or Research Edition
 
-```bash
-docker compose --profile rest-api-re up -d   # Research Edition
+```shell
+docker compose -f docker-compose.rest-api-re.yml up -d   # Research Edition
 ```
-
-> Podman is also supported: use `podman-compose` as a drop-in replacement.

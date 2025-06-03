@@ -1,0 +1,42 @@
+services:
+  kafkasetup:
+    image: docker.io/bitnami/kafka:3.8
+    depends_on:
+      - openepcis-kafka
+    command: >
+      bash -c 'unset JMX_PORT;
+      for i in $$(seq 1 10); do
+        /opt/bitnami/kafka/bin/kafka-broker-api-versions.sh \
+          --bootstrap-server openepcis-kafka:9092 \
+          &>/dev/null && break
+        echo "Waiting for Kafka… ($$i/10)" && sleep 5
+      done;      
+      topics=(
+        "capture-document-event" 
+        "capture-document-event-count" 
+        "capture-documents" 
+        "capture-documents-agg" 
+        "epcis-event-captured" 
+        "epcis-event-persisted" 
+        "epcis-event-validated" 
+        "epcis-event-validated_failure" 
+        "epcis-event-validated_success" 
+        "epcis-event-validated-failure" 
+        "epcis-event-validated-success" 
+        "streaming-subscription" 
+        "event-saved"
+      );
+      for topic in "$${topics[@]}"; do
+        /opt/bitnami/kafka/bin/kafka-topics.sh \
+          --bootstrap-server openepcis-kafka:9092 \
+          --create --if-not-exists \
+          --partitions 1 \
+          --replication-factor 1 \
+          --topic "$$topic";
+      done;
+      exit'
+    networks:
+      - openepcis-net
+
+networks:
+  openepcis-net:

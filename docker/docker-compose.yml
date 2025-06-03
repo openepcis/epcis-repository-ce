@@ -1,35 +1,6 @@
-# common settings for both REST API variants
-x-rest-api-commons: &rest-api-common
-  environment:
-    - QUARKUS_OPENSEARCH_HOSTS=opensearch-node-01:9200
-    - KAFKA_BOOTSTRAP_SERVERS=openepcis-kafka:9092
-    - STORAGE_LOCAL_PATH=/data/openepcis
-  volumes:
-    - openepcis-store:/data/openepcis
-  restart: on-failure
-  depends_on:
-    - opensearch-node-01
-    - openepcis-kafka
-  ports:
-    - "8080:8080"
-  networks:
-    - openepcis-net
-
 services:
-  quarkus-rest-api-ce:
-    <<: *rest-api-common
-    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:stable
-    container_name: quarkus-rest-api-ce
-    profiles: ["rest-api-ce"]
-
-  quarkus-rest-api-re:
-    <<: *rest-api-common
-    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-re:stable
-    container_name: quarkus-rest-api-re
-    profiles: ["rest-api-re"]
-
   opensearch-node-01:
-    image: docker.io/opensearchproject/opensearch:2.17.1
+    image: docker.io/opensearchproject/opensearch:2.19.2
     container_name: opensearch-node-01
     environment:
       - cluster.name=openepcis-cluster
@@ -53,7 +24,7 @@ services:
       - openepcis-net
 
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.17.1
+    image: opensearchproject/opensearch-dashboards:2.19.2
     container_name: opensearch-dashboards
     ports:
       - "5601:5601"
@@ -88,47 +59,5 @@ services:
       retries: 5
       start_period: 30s
 
-  kafkasetup:
-    image: docker.io/bitnami/kafka:3.8
-    depends_on:
-      - openepcis-kafka
-    profiles: ["init"]
-    command: >
-      bash -c 'unset JMX_PORT;
-      for i in $$(seq 1 10); do
-        /opt/bitnami/kafka/bin/kafka-broker-api-versions.sh \
-          --bootstrap-server openepcis-kafka:9092 \
-          &>/dev/null && break
-        echo "Waiting for Kafka… ($$i/10)" && sleep 5
-      done;      
-      topics=(
-        "capture-document-event" 
-        "capture-document-event-count" 
-        "capture-documents" 
-        "capture-documents-agg" 
-        "epcis-event-captured" 
-        "epcis-event-persisted" 
-        "epcis-event-validated" 
-        "epcis-event-validated_failure" 
-        "epcis-event-validated_success" 
-        "epcis-event-validated-failure" 
-        "epcis-event-validated-success" 
-        "streaming-subscription" 
-        "event-saved"
-      );
-      for topic in "$${topics[@]}"; do
-        /opt/bitnami/kafka/bin/kafka-topics.sh \
-          --bootstrap-server openepcis-kafka:9092 \
-          --create --if-not-exists \
-          --partitions 1 \
-          --replication-factor 1 \
-          --topic "$$topic";
-      done;
-      exit'
-    networks:
-      - openepcis-net
-
 networks:
   openepcis-net:
-volumes:
-  openepcis-store:

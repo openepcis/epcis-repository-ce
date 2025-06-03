@@ -1,0 +1,23 @@
+services:
+  quarkus-rest-api-ce:
+    environment:
+      - QUARKUS_OPENSEARCH_HOSTS=opensearch-node-01:9200
+      - KAFKA_BOOTSTRAP_SERVERS=openepcis-kafka:9092
+      - STORAGE_LOCAL_PATH=/data/openepcis
+    volumes:
+      - openepcis-store:/data/openepcis
+    restart: on-failure
+    depends_on:
+      - opensearch-node-01
+      - openepcis-kafka
+    ports:
+      - "8080:8080"
+    networks:
+      - openepcis-net
+    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:stable
+    container_name: quarkus-rest-api-ce
+
+networks:
+  openepcis-net:
+volumes:
+  openepcis-store:

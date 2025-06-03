@@ -51,7 +51,13 @@
            <groupId>io.openepcis</groupId>
            <artifactId>openepcis-repository-opensearch</artifactId>
             <version>${project.parent.version}</version>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.opensearch</groupId>
+            <artifactId>quarkus-opensearch-transport-apache</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-config-yaml</artifactId>
         </dependency>

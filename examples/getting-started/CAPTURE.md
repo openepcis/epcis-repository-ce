@@ -18,17 +18,19 @@ Use the setup in [`docker`](../../docker) directory, which you’ll find at the 
 
 ### Start Core Infrastructure
 
+see [/docker/README.md](../../docker/README.md) for using docker.
+
 ```bash
 # Start OpenSearch, Dashboards, and Kafka
-docker compose up -d
+podman-compose up -d
 
 # Run one-time Kafka topic setup
-docker compose --profile init run --rm kafkasetup
+podman-compose -f docker-compose.kafka-setup.yml run
 ```
 
 ### Run OpenEPCIS Repository Services Locally
 
-#### Option 1: Use Docker (Recommended)
+#### Option 1: Use Podman (Recommended)
 
 Choose one of the following editions:
 
@@ -37,12 +39,12 @@ Choose one of the following editions:
 
 ```bash
 # Start Research Edition (SAX-based)
-docker compose --profile rest-api-re up -d
+podman-compose -f docker-compose.rest-api-re.yml up -d
 ```
 
 ```bash
 # OR: Start Community Edition (XSLT-based)
-docker compose --profile rest-api-ce up -d
+podman-compose -f docker-compose.rest-api-ce.yml up -d
 ```
 
 #### Option 2: Run from Source (for Development/Debug)
