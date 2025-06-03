@@ -24,7 +24,7 @@ services:
       - openepcis-net
 
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.19.2
+    image: docker.io/opensearchproject/opensearch-dashboards:2.19.2
     container_name: opensearch-dashboards
     ports:
       - "5601:5601"
