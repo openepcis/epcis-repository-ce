@@ -25,7 +25,7 @@ see [/docker/README.md](../../docker/README.md) for using docker.
 podman-compose up -d
 
 # Run one-time Kafka topic setup
-podman-compose -f docker-compose.kafka-setup.yml run
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
 ```
 
 ### Run OpenEPCIS Repository Services Locally

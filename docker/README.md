@@ -20,7 +20,7 @@ podman-compose -f docker-compose.yml up -d
 Run one-time Kafka topic setup:
 
 ```shell
-podman-compose -f docker-compose.kafka-setup.yml run
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
 ```
 
 Start Community Edition REST API:
@@ -46,7 +46,7 @@ docker compose up -d
 Run one-time Kafka topic setup:
 
 ```shell
-docker compose -f docker-compose.kafka-setup.yml run
+docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
 ```
 
 Start Community Edition REST API:

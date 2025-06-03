@@ -1,8 +1,6 @@
 services:
   kafkasetup:
     image: docker.io/bitnami/kafka:3.8
-    depends_on:
-      - openepcis-kafka
     command: >
       bash -c 'unset JMX_PORT;
       for i in $$(seq 1 10); do

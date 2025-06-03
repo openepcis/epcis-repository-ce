@@ -7,9 +7,6 @@ services:
     volumes:
       - openepcis-store:/data/openepcis
     restart: on-failure
-    depends_on:
-      - opensearch-node-01
-      - openepcis-kafka
     ports:
       - "8080:8080"
     networks:
