@@ -37,7 +37,7 @@ Choose one of the following editions:
 * **Research Edition** – SAX-based converter (high performance, minimal dependencies)
 * **Community Edition** – XSLT-based converter (closer to EPCIS 1.2 XML structure)
 
-```bash
+```shell
 # Start Research Edition (SAX-based)
 podman-compose -f docker-compose.rest-api-re.yml up -d
 
@@ -45,7 +45,7 @@ podman-compose -f docker-compose.rest-api-re.yml up -d
 podman logs --tail 250 -f quarkus-rest-api-re
 ```
 
-```bash
+```shell
 # OR: Start Community Edition (XSLT-based)
 podman-compose -f docker-compose.rest-api-ce.yml up -d
 
@@ -73,7 +73,7 @@ Each service can be launched individually from the `/distributions` directory. T
 
 Many examples from GS1 use custom namespaces for extensions. If your events include such extensions, you’ll need to register a JSON Schema.
 
-```bash
+```shell
 curl -v --location 'http://localhost:8080/userExtension/jsonSchema?namespace=http%3A%2F%2Fns.example.com%2Fepcis%2F&defaultPrefix=example' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -106,7 +106,7 @@ If your events don’t use any custom extensions, you can skip this step.
 
 Use the OpenEPCIS test data generator to create a few valid events and send them directly to the repository:
 
-```bash
+```shell
 curl --header "Content-Type: application/json" "https://tools.openepcis.io/api/generateTestData?pretty=true" -d '
 {
     "events": [
@@ -207,7 +207,7 @@ Alternatively, you can post directly from GS1’s reference event files. These a
 
 Examples:
 
-```bash
+```shell
 curl -o - "https://ref.gs1.org/docs/epcis/examples/example_9.6.1-object_event.jsonld" | \
 curl --header "Content-Type: application/ld+json" "http://localhost:8080/capture" -d @-
 
@@ -221,7 +221,7 @@ curl --header "Content-Type: application/ld+json" "http://localhost:8080/capture
 
 You can query OpenSearch directly to confirm the data was captured:
 
-```bash
+```shell
 curl --header "Content-Type: application/json" "http://localhost:9200/epcis-event*/_search" -d '{
   "query": {
     "match_all": {}
