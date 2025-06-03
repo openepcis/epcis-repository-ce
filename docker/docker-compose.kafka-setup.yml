@@ -17,8 +17,6 @@ services:
         "epcis-event-captured" 
         "epcis-event-persisted" 
         "epcis-event-validated" 
-        "epcis-event-validated_failure" 
-        "epcis-event-validated_success" 
         "epcis-event-validated-failure" 
         "epcis-event-validated-success" 
         "streaming-subscription" 
