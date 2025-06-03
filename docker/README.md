@@ -11,22 +11,16 @@ This folder contains Docker Compose setups to bootstrap the full OpenEPCIS infra
 
 ### Setup using Podman
 
-Start core infrastructure:
-
-```shell
-podman-compose -f docker-compose.yml up -d
-```
-
-Run one-time Kafka topic setup:
-
-```shell
-podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-```
-
 Start Community Edition REST API:
 
 ```shell
-podman-compose -f docker-compose.rest-api-ce.yml up -d   # Community Edition
+podman-compose -f docker-compose.rest-api-ce.yml up -d
+
+# Run one-time Kafka topic setup
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-ce
 
 # check logs
 podman logs --tail 250 -f quarkus-rest-api-ce
@@ -35,7 +29,13 @@ podman logs --tail 250 -f quarkus-rest-api-ce
 Or Research Edition
 
 ```shell
-podman-compose -f docker-compose.rest-api-re.yml up -d   # Research Edition
+podman-compose -f docker-compose.rest-api-re.yml up -d
+
+# Run one-time Kafka topic setup
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-re
 
 # check logs
 podman logs --tail 250 -f quarkus-rest-api-re
@@ -43,22 +43,16 @@ podman logs --tail 250 -f quarkus-rest-api-re
 
 ### Setup using Docker
 
-Start core infrastructure:
-
-```shell
-docker compose up -d
-```
-
-Run one-time Kafka topic setup:
-
-```shell
-docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-```
-
 Start Community Edition REST API:
 
 ```shell
-docker compose -f docker-compose.rest-api-ce.yml up -d   # Community Edition
+docker compose -f docker-compose.rest-api-ce.yml up -d
+
+# Run one-time Kafka topic setup
+docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-ce
 
 # check logs
 docker logs --tail 250 -f quarkus-rest-api-ce
@@ -67,7 +61,13 @@ docker logs --tail 250 -f quarkus-rest-api-ce
 Or Research Edition
 
 ```shell
-docker compose -f docker-compose.rest-api-re.yml up -d   # Research Edition
+docker compose -f docker-compose.rest-api-re.yml up -d
+
+# Run one-time Kafka topic setup
+docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-re
 
 # check logs
 docker logs --tail 250 -f quarkus-rest-api-re

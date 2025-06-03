@@ -100,32 +100,78 @@ For details on what services are included and how to configure them, refer to th
 - [Podman](https://podman.io/)
 - [podman-compose](https://github.com/containers/podman-compose)
 
-```bash
-podman-compose up -d                          # Start infrastructure
-podman-compose --profile init run --rm kafkasetup
+When running on MacOS make sure to setup your Podman VM Resources - we need a bit more... But you don't need to set rootless!
 
-podman-compose up quarkus-rest-api-ce         # Start Community Edition
-# or:
-podman-compose up quarkus-rest-api-re         # Start Research Edition
-````
+```shell
+# Create VM for 8GB of memory and 8 CPUs
+podman machine init --memory=8192 --cpus=8
 
----
+# and start it
+podman machine start
+```
+
+Start Community Edition REST API:
+
+```shell
+podman-compose -f docker-compose.rest-api-ce.yml up -d
+
+# Run one-time Kafka topic setup
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-ce
+
+# check logs
+podman logs --tail 250 -f quarkus-rest-api-ce
+```
+
+Or Research Edition
+
+```shell
+podman-compose -f docker-compose.rest-api-re.yml up -d
+
+# Run one-time Kafka topic setup
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-re
+
+# check logs
+podman logs --tail 250 -f quarkus-rest-api-re
+```
 
 ### Option 2: Run via Docker
 
-**Prerequisites:**
+Start Community Edition REST API:
 
-* [Docker](https://docs.docker.com/get-docker/)
-* [Docker Compose](https://docs.docker.com/compose/)
+```shell
+docker compose -f docker-compose.rest-api-ce.yml up -d
 
-```bash
-docker compose up -d                          # Start Kafka, OpenSearch, Dashboards
-docker compose --profile init run --rm kafkasetup
+# Run one-time Kafka topic setup
+docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
 
-docker compose up quarkus-rest-api-ce         # Start Community Edition
-# or:
-docker compose up quarkus-rest-api-re         # Start Research Edition
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-ce
+
+# check logs
+docker logs --tail 250 -f quarkus-rest-api-ce
 ```
+
+Or Research Edition
+
+```shell
+docker compose -f docker-compose.rest-api-re.yml up -d
+
+# Run one-time Kafka topic setup
+docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-re
+
+# check logs
+docker logs --tail 250 -f quarkus-rest-api-re
+```
+
 
 ---
 

@@ -20,14 +20,6 @@ Use the setup in [`docker`](../../docker) directory, which you’ll find at the 
 
 see [/docker/README.md](../../docker/README.md) for using docker.
 
-```bash
-# Start OpenSearch, Dashboards, and Kafka
-podman-compose up -d
-
-# Run one-time Kafka topic setup
-podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-```
-
 ### Run OpenEPCIS Repository Services Locally
 
 #### Option 1: Use Podman (Recommended)
@@ -41,6 +33,12 @@ Choose one of the following editions:
 # Start Research Edition (SAX-based)
 podman-compose -f docker-compose.rest-api-re.yml up -d
 
+# Run one-time Kafka topic setup
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-re
+
 # check logs
 podman logs --tail 250 -f quarkus-rest-api-re
 ```
@@ -48,6 +46,12 @@ podman logs --tail 250 -f quarkus-rest-api-re
 ```shell
 # OR: Start Community Edition (XSLT-based)
 podman-compose -f docker-compose.rest-api-ce.yml up -d
+
+# Run one-time Kafka topic setup
+podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
+
+# Restart REST API to pick up topics
+podman restart quarkus-rest-api-ce
 
 # check logs
 podman logs --tail 250 -f quarkus-rest-api-ce
