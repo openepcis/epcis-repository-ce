@@ -100,7 +100,7 @@ For details on what services are included and how to configure them, refer to th
 - [Podman](https://podman.io/)
 - [podman-compose](https://github.com/containers/podman-compose)
 
-When running on MacOS make sure to setup your Podman VM Resources - we need a bit more... But you don't need to set rootless!
+When running on **MacOS** or **Windows** make sure to setup your Podman VM Resources - we need a bit more... But you don't need to set rootless!
 
 ```shell
 # Create VM for 8GB of memory and 8 CPUs

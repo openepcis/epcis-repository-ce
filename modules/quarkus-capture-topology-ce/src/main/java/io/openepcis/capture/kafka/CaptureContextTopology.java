@@ -95,13 +95,13 @@ public class CaptureContextTopology {
   @OnOverflow(OnOverflow.Strategy.UNBOUNDED_BUFFER)
   Emitter<Record<String, CaptureStatusMessage>> captureStatusMessageEmitter;
 
-  // Emitter to produce into Topic: epcis-event-validated_success from validationStream for
+  // Emitter to produce into Topic: epcis-event-validated-success from validationStream for
   // successful validation of the event
   @Channel("epcis-event-validated-success-out")
   @OnOverflow(OnOverflow.Strategy.UNBOUNDED_BUFFER)
   Emitter<Record<String, EPCISValidationMessage>> eventValidatedSuccessEmitter;
 
-  // Emitter to produce into Topic: epcis-event-validated_failure from validationStream for
+  // Emitter to produce into Topic: epcis-event-validated-failure from validationStream for
   // unsuccessful validation (duplication/invalid date/info etc.)
   @Channel("epcis-event-validated-failure-out")
   @OnOverflow(OnOverflow.Strategy.UNBOUNDED_BUFFER)
@@ -279,10 +279,10 @@ public class CaptureContextTopology {
         Produced.with(Serdes.String(), captureDataSerde));
 
     // Validation stream to validate the event again schema/duplicate/invalid entries and write to
-    // Topics (epcis-event-validated_success/epcis-event-validated_failure)
-    // On Validation Success produce to Topic: epcis-event-validated_success Channel:
+    // Topics (epcis-event-validated-success/epcis-event-validated-failure)
+    // On Validation Success produce to Topic: epcis-event-validated-success Channel:
     // epcis-event-validated-success-out
-    // On Validation Failure produce to Topic: epcis-event-validated_failure Channel:
+    // On Validation Failure produce to Topic: epcis-event-validated-failure Channel:
     // epcis-event-validated-failure-out
     final KStream<String, EPCISValidationMessage> validationStream =
         builder.stream(
@@ -388,7 +388,7 @@ public class CaptureContextTopology {
 
                                     // If no errors found during validation then produce
                                     // (channel:epcis-event-validated-success-out Topic:
-                                    // epcis-event-validated_success)
+                                    // epcis-event-validated-success)
                                     if (invalidEPCISEvents.isEmpty()) {
                                       Log.debug(
                                           " ✅ Event validation successful, No invalid information !!! ✅ ");
@@ -397,7 +397,7 @@ public class CaptureContextTopology {
                                     } else {
                                       // If any errors found during validation then produce
                                       // (channel:epcis-event-validated-failure-out Topic:
-                                      // epcis-event-validated_failure)
+                                      // epcis-event-validated-failure)
                                       Log.debug(
                                           " ❌ Event validation failed with invalid information !!! ❌ ");
                                       eventValidatedFailureEmitter.send(
@@ -451,7 +451,7 @@ public class CaptureContextTopology {
                             failure -> {
                               // If any failure occurred during validation then produce
                               // (channel:epcis-event-validated-failure-out Topic:
-                              // epcis-event-validated_failure)
+                              // epcis-event-validated-failure)
                               log.info(
                                   " ❌ Event validation was failed due to : {} ❌ ",
                                   failure.getMessage(),
@@ -462,7 +462,7 @@ public class CaptureContextTopology {
 
                               // If validation fails then produce
                               // (channel:epcis-event-validated-failure-out Topic:
-                              // epcis-event-validated_failure)
+                              // epcis-event-validated-failure)
                               eventValidatedFailureEmitter.send(
                                   Record.of(captureID, failureMessage));
                             });
@@ -479,7 +479,7 @@ public class CaptureContextTopology {
                   } catch (Exception e) {
                     // If any exception occur during the Event hash generation/validation then
                     // produce (channel:epcis-event-validated-failure-out Topic:
-                    // epcis-event-validated_failure)
+                    // epcis-event-validated-failure)
                     log.error(
                         " ❌ Exception occurred during validation/hash generation : {} ❌ ",
                         e,
@@ -502,8 +502,8 @@ public class CaptureContextTopology {
                 });
 
     // If Validation unsuccessful in the above validationStream then consume from Topic:
-    // epcis-event-validated_failure and update the CaptureStatusMessage with INVALID info
-    // Consume from Topic: epcis-event-validated_failure and set CaptureStatus as Invalid and
+    // epcis-event-validated-failure and update the CaptureStatusMessage with INVALID info
+    // Consume from Topic: epcis-event-validated-failure and set CaptureStatus as Invalid and
     // produce to Topic: capture-document-event
     final KStream<String, EPCISValidationMessage> failedValidationStream =
         builder.stream(
@@ -543,7 +543,7 @@ public class CaptureContextTopology {
             Produced.with(Serdes.String(), captureStatusSerde));
 
     // If successfully validated in the above validationStream then consume from Topic:
-    // epcis-event-validated_success and update the CaptureStatusMessage with VALID/INVALID info
+    // epcis-event-validated-success and update the CaptureStatusMessage with VALID/INVALID info
     // On PERSISTENCE   Successful set CaptureStatus as Valid   and produce to Topic:
     // capture-document-event Channel: capture-document-event-out
     // On PERSISTENCE Unsuccessful set CaptureStatus as Invalid and produce to Topic:
