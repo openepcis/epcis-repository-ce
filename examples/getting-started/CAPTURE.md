@@ -31,7 +31,7 @@ Choose one of the following editions:
 
 ```shell
 # Start Research Edition (SAX-based)
-podman-compose -f docker-compose.rest-api-re.yml up -d
+podman-compose -f docker-compose.yml -f docker-compose.rest-api-re.yml up -d
 
 # Run one-time Kafka topic setup
 podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
@@ -45,7 +45,7 @@ podman logs --tail 250 -f quarkus-rest-api-re
 
 ```shell
 # OR: Start Community Edition (XSLT-based)
-podman-compose -f docker-compose.rest-api-ce.yml up -d
+podman-compose -f docker-compose.yml -f docker-compose.rest-api-ce.yml up -d
 
 # Run one-time Kafka topic setup
 podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
