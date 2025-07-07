@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2025 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package io.openepcis.capture.kafka;
 
 import static io.openepcis.model.epcis.exception.ExceptionMessages.ERROR_WHILE_PERSISTING_EVENT;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.openepcis.capture.context.EPCISEventObjectNodeUtil;
@@ -43,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
@@ -62,715 +64,556 @@ import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.OnOverflow;
 
 /**
- * CaptureContextTopology is responsible for constructing and managing the Kafka Streams topology
- * that processes EPCIS event capture messages. It integrates various services such as validation,
- * persistence, storage, and Kafka configuration to perform the following tasks:
- *
+ * CaptureContextTopology builds and manages the Kafka Streams topology that processes EPCIS
+ * event‑capture messages. It integrates validation, persistence, storage, and Kafka configuration
+ * to perform the following tasks:
  * <ul>
- *   <li>Consume EPCIS event capture messages from configured Kafka topics.
- *   <li>Aggregate and update capture job status messages with event counts and validation
- *       information.
- *   <li>Perform event validation, including schema checks, duplication, and integrity verification.
- *   <li>Handle external storage for large EPCIS events (e.g., events larger than 4KB).
- *   <li>Produce validation success and failure messages to appropriate Kafka topics.
- *   <li>Persist capture job statuses in a reactive repository and update associated systems.
+ *   <li>Consume EPCIS event‑capture messages from configured Kafka topics.</li>
+ *   <li>Aggregate and update capture‑job status messages.</li>
+ *   <li>Perform event validation (schema, duplication, integrity).</li>
+ *   <li>Handle external storage for large EPCIS events (>4 KB).</li>
+ *   <li>Produce validation success/failure messages.</li>
+ *   <li>Persist capture‑job statuses in the repository.</li>
  * </ul>
  */
 @RequiredArgsConstructor
 @ApplicationScoped
 public class CaptureContextTopology {
-  private static final OpenEPCISLogger log =
-      OpenEPCISLogger.getLogger(CaptureContextTopology.class);
+  private static final OpenEPCISLogger log = OpenEPCISLogger.getLogger(CaptureContextTopology.class);
+  private static final int LARGE_EVENT_THRESHOLD_KB = 4;
+
   private final EPCISEventValidationService epcisEventValidationService;
   private final EPCISEventPersistenceService epcisEventPersistenceService;
   private final EventRepository reactiveRepository;
   private final KafkaConfigurationService kafkaConfigurationService;
   private final EventHashGenerator eventHashGenerator = new EventHashGenerator();
+
   @Inject ObjectMapper objectMapper;
   @Inject StorageService storageService;
 
-  // Emitter to produce into Topic: capture-document-event after validation/persistence with
-  // valid/invalid entries from CaptureJobStatus
+  // Emitters -----------------------------------------------------------------
   @Channel("capture-document-event-out")
   @OnOverflow(OnOverflow.Strategy.UNBOUNDED_BUFFER)
   Emitter<Record<String, CaptureStatusMessage>> captureStatusMessageEmitter;
 
-  // Emitter to produce into Topic: epcis-event-validated-success from validationStream for
-  // successful validation of the event
   @Channel("epcis-event-validated-success-out")
   @OnOverflow(OnOverflow.Strategy.UNBOUNDED_BUFFER)
   Emitter<Record<String, EPCISValidationMessage>> eventValidatedSuccessEmitter;
 
-  // Emitter to produce into Topic: epcis-event-validated-failure from validationStream for
-  // unsuccessful validation (duplication/invalid date/info etc.)
   @Channel("epcis-event-validated-failure-out")
   @OnOverflow(OnOverflow.Strategy.UNBOUNDED_BUFFER)
   Emitter<Record<String, EPCISValidationMessage>> eventValidatedFailureEmitter;
+
+  // -------------------------------------------------------------------------
 
   @Produces
   public Topology buildTopology() {
     final StreamsBuilder builder = new StreamsBuilder();
 
-    final ObjectMapperSerde<CaptureJobStatusMessage> captureDataSerde =
-        new ObjectMapperSerde<>(CaptureJobStatusMessage.class);
-    final ObjectMapperSerde<CaptureStatusMessage> captureStatusSerde =
-        new ObjectMapperSerde<>(CaptureStatusMessage.class);
-    final ObjectMapperSerde<DocumentCaptureMessage> documentCapturedMessageSerde =
-        new ObjectMapperSerde<>(DocumentCaptureMessage.class);
-    final ObjectMapperSerde<EPCISValidationMessage> epcisEventValidationMessageSerde =
-        new ObjectMapperSerde<>(EPCISValidationMessage.class);
-    final ObjectMapperSerde<EventCountMessage> eventCountWithTracingSerde =
-        new ObjectMapperSerde<>(EventCountMessage.class);
-
-    final KeyValueBytesStoreSupplier storeSupplier =
-        Stores.persistentKeyValueStore(kafkaConfigurationService.stores().captureDocsStore());
-
-    final GlobalKTable<String, CaptureJobStatusMessage> docs =
-        builder.globalTable(
-            kafkaConfigurationService.topics().captureDocs(),
-            Consumed.with(Serdes.String(), captureDataSerde),
-            Materialized.as(kafkaConfigurationService.stores().globalCaptureJobMessageStore()));
-
-    // Consume from Topic: capture-document-event-count Produced Channel:
-    // capture-document-event-count-out for writing capturedEventCount
-    var eventCountStream =
-        builder.stream(
-            kafkaConfigurationService.topics().captureDocEventCount(),
-            Consumed.with(Serdes.String(), eventCountWithTracingSerde));
-
-    // Consume from Topic: capture-document-event-count to write the capturedEventCount for the
-    // CaptureJob and Produce to Topic: capture-document-event
-    eventCountStream
-        .map(
-            (captureID, eventCountWithTracing) -> {
-              final CaptureStatusMessage captureStatusMessage =
-                  CaptureStatusMessage.eventCapturedCount(
-                      eventCountWithTracing.getCount(), new HashMap<>());
-              captureStatusMessage.setTraceId(eventCountWithTracing.getTraceId());
-              captureStatusMessage.setSpanId(eventCountWithTracing.getSpanId());
-              captureStatusMessage.setDefaultGroup(eventCountWithTracing.getDefaultGroup());
-              return KeyValue.pair(captureID, captureStatusMessage);
-            })
-        .to(
-            kafkaConfigurationService.topics().captureDocsEvent(),
-            Produced.with(Serdes.String(), captureStatusSerde));
-
-    // After capturedEventCount consume from Topic: capture-document-event and prepare
-    // CaptureStatusMessage for the update info in joinedEventStatusStream
-    final KStream<String, CaptureStatusMessage> eventStatusStream =
-        builder.stream(
-            kafkaConfigurationService.topics().captureDocsEvent(),
-            Consumed.with(Serdes.String(), captureStatusSerde));
-    eventStatusStream.foreach(
-        (captureID, captureStatusMessage) -> {
-            log.debug("event count {} = {}", captureID, captureStatusMessage);
-        });
-
-    // Build CaptureJobStatusMessage with Captured/Processed/Valid/Invalid event count information.
-    // This is triggered automatically when information produced to Topic: capture-document-event
-    // during Captured/Valid/Invalid/Processed flow.
-    final KStream<String, CaptureJobStatusMessage> joinedEventStatusStream =
-        eventStatusStream
-            .join(
-                docs,
-                (captureID, captureStatus) -> captureID,
-                (captureID, captureStatus, captureJobStatus) ->
-                    new CaptureJobStatusMessageAggregation(
-                        captureJobStatus, captureStatus, epcisEventPersistenceService))
-            .groupByKey()
-            .aggregate(
-                CaptureJobStatusMessage::new,
-                (captureID, aggregation, captureJobStatusMessage) ->
-                    aggregation
-                        .update(captureJobStatusMessage)
-                        .chain(
-                            msg -> {
-                                log.debug("aggregating from {}", msg);
-                                msg.setErrors(
-                                    InvalidEventInfoUtil.condenseInvalidInfos(msg.getErrors()));
-                                return Uni.createFrom().item(msg);
-                            })
-                        .subscribe()
-                        .asCompletionStage()
-                        .join(),
-                Materialized.<String, CaptureJobStatusMessage>as(storeSupplier)
-                    .withKeySerde(Serdes.String())
-                    .withValueSerde(captureDataSerde))
-            .toStream();
-
-    // Finally update the captureJobStatus (running/success) in OpenSearch/ElasticSearch repository
-    // with count information (valid/invalid/processed/capture, etc.)
-    joinedEventStatusStream
-        .filter((captureID, captureJobStatus) -> captureJobStatus.getFinishedAt() != null)
-        .foreach(
-            (captureID, captureJobStatusMessage) -> {
-
-              try  {
-                if (captureJobStatusMessage.getInvalidEventCount() > 0
-                    && captureJobStatusMessage.isRollback()) {
-                  epcisEventPersistenceService
-                      .removeEventsForCaptureID(
-                          captureJobStatusMessage.getCaptureID(),
-                          captureJobStatusMessage.getCreatedAt(),
-                          captureJobStatusMessage.getDefaultGroup())
-                      .subscribe()
-                      .with(
-                          aBoolean -> {
-                            log.debug(
-                                "successfully deleted events with the captureId: {}",
-                                captureJobStatusMessage.getCaptureID());
-                          },
-                          throwable -> {
-                            log.error(
-                                "Error while deleting the events with the captureId: {}",
-                                captureJobStatusMessage.getCaptureID(),
-                                throwable);
-                          });
-
-                  log.debug(
-                      "EPCIS document with captureId={} was not processed due to event invalid event present in document and "
-                          + "GS1-Capture-Error-Behaviour=rollback",
-                      captureID);
-                }
-                if (captureJobStatusMessage.getCapturedEventCount()
-                    > captureJobStatusMessage.getProcessedEventCount()) {
-                  captureJobStatusMessage.setCapturedEventCount(
-                      captureJobStatusMessage.getProcessedEventCount());
-                  captureJobStatusMessage.setFinishedAt(OffsetDateTime.now());
-                  captureJobStatusMessage.setSuccess(captureJobStatusMessage.getErrors().isEmpty());
-                  captureJobStatusMessage.setRunning(false);
-                }
-
-                // Save the capture job status and information and if any exception occurs then
-                // record it on span
-                reactiveRepository
-                    .saveCaptureJob(
-                        captureJobStatusMessage,
-                        captureID,
-                        captureJobStatusMessage.getCreatedAt(),
-                        captureJobStatusMessage.getDefaultGroup(),
-                        captureJobStatusMessage.getMetadata())
-                    .onFailure()
-                    .invoke(
-                        failure -> {
-                          log.error(
-                              "Error occurred during the saving of the capture job : {}",
-                              failure.getMessage());
-                        })
-                    .subscribe()
-                    .with(
-                        result -> {
-                          // Capture job was successfully saved
-                          log.debug("Successfully saved capture job for captureID: {}", captureID);
-                        },
-                        throwable -> {
-                          // Capture job saving was failed
-                          log.debug(
-                              "Failed to save capture job for captureID : {}",
-                              captureID,
-                              throwable.getMessage());
-                        });
-              } catch (Exception e) {
-                log.error(e.getMessage(), e);
-              }
-            });
-    joinedEventStatusStream.to(
-        kafkaConfigurationService.topics().captureDocs(),
-        Produced.with(Serdes.String(), captureDataSerde));
-
-    // Validation stream to validate the event again schema/duplicate/invalid entries and write to
-    // Topics (epcis-event-validated-success/epcis-event-validated-failure)
-    // On Validation Success produce to Topic: epcis-event-validated-success Channel:
-    // epcis-event-validated-success-out
-    // On Validation Failure produce to Topic: epcis-event-validated-failure Channel:
-    // epcis-event-validated-failure-out
-    final KStream<String, EPCISValidationMessage> validationStream =
-        builder.stream(
-                kafkaConfigurationService.topics().epcisEventCaptured(),
-                Consumed.with(Serdes.String(), documentCapturedMessageSerde))
-            .map(
-                (captureID, documentCaptureMessage) -> {
-
-                  try  {
-
-                    ObjectNode singleEventNode; // Retrieve event from storage
-                    final String[] arrayOfHash; // Generate hashes for verification
-
-                    // If EPCIS Event is stored in S3/Azure Blob Storage (>4KB) then get the event
-                    // from storage and process
-                    if (StringUtils.isBlank(documentCaptureMessage.getObjectNodeString())) {
-                      log.debug(
-                          "Large event (>4kb) stored in StorageService {}",
-                          documentCaptureMessage.getStorageKey());
-                      final InputStream originalStream =
-                          storageService.get(documentCaptureMessage.getEventStorageKey());
-                      final byte[] content =
-                          originalStream.readAllBytes(); // Read the entire stream into byte array
-
-                      // Create new InputStreams from the buffered content
-                      final InputStream eventStream = new ByteArrayInputStream(content);
-
-                      arrayOfHash =
-                          eventHashGenerator
-                              .fromJson(eventStream, "sha-256")
-                              .subscribe()
-                              .asStream()
-                              .toList()
-                              .toArray(new String[0]);
-
-                      eventStream.reset();
-
-                      singleEventNode = (ObjectNode) objectMapper.readTree(eventStream);
-                    } else {
-                      // If event below 4kb and stored as string in documentCaptureMessage then read
-                      // and continue as before
-                      log.debug(
-                          "Small event (<4kb) stored as string in documentCaptureMessage ObjectNodeString");
-
-                      final String epcisDocumentString =
-                          documentCaptureMessage.getObjectNodeString();
-                      singleEventNode = (ObjectNode) objectMapper.readTree(epcisDocumentString);
-                      arrayOfHash =
-                          eventHashGenerator
-                              .fromJson(
-                                  new ByteArrayInputStream(
-                                      epcisDocumentString.getBytes(StandardCharsets.UTF_8)),
-                                  "sha-256")
-                              .subscribe()
-                              .asStream()
-                              .toList()
-                              .toArray(new String[0]);
-                    }
-
-                    // Extract event and context
-                    final Pair<ObjectNode, Map<String, Object>> eventAndContextPair =
-                        EPCISEventObjectNodeUtil.extractEventAndContextNodeFromDocument(
-                            singleEventNode, objectMapper);
-                    final Map<String, Object> contextAsMap = eventAndContextPair.getValue();
-                    final ObjectNode eventNode = eventAndContextPair.getKey();
-
-                    // Initialize validation info and add tags
-                    final List<InvalidEPCISEventInfo> invalidEPCISEvents = new ArrayList<>();
-
-                    // Validate the events against schema/duplication/invalid info's etc. and also
-                    // generate event hash
-                    epcisEventValidationService
-                        .validateEvent(
-                            singleEventNode,
-                            eventNode,
-                            arrayOfHash,
-                            contextAsMap,
-                            documentCaptureMessage.getCaptureID(),
-                            invalidEPCISEvents,
-                            documentCaptureMessage.getEventIndex(),
-                            documentCaptureMessage.getEventIDs(),
-                            eventNode.has(Constants.ERROR_DECLARATION),
-                            documentCaptureMessage.getMetadata())
-                        .subscribe()
-                        .with(
-                            item -> {
-                              // Update the docCapMsg with singleEventNode containing the EventHash
-                              // generated
-                              final String eventWithHash = singleEventNode.toString();
-
-                              // Define a common emitter logic as a Runnable to be run after
-                              // completion of PUT or after updating the eventString with Hash
-                              // This is to avoid sending success/failure before the event has been
-                              // successfully PUT in S3/Blob
-                              final Runnable emitValidationMessage =
-                                  () -> {
-                                    // After the successful event validation generate
-                                    // EPCISValidationMessage
-                                    final EPCISValidationMessage validationMessage =
-                                        new EPCISValidationMessage();
-                                    validationMessage.updateFrom(
-                                        documentCaptureMessage, invalidEPCISEvents);
-
-                                    // If no errors found during validation then produce
-                                    // (channel:epcis-event-validated-success-out Topic:
-                                    // epcis-event-validated-success)
-                                    if (invalidEPCISEvents.isEmpty()) {
-                                      Log.debug(
-                                          " ✅ Event validation successful, No invalid information !!! ✅ ");
-                                      eventValidatedSuccessEmitter.send(
-                                          Record.of(captureID, validationMessage));
-                                    } else {
-                                      // If any errors found during validation then produce
-                                      // (channel:epcis-event-validated-failure-out Topic:
-                                      // epcis-event-validated-failure)
-                                      Log.debug(
-                                          " ❌ Event validation failed with invalid information !!! ❌ ");
-                                      eventValidatedFailureEmitter.send(
-                                          Record.of(captureID, validationMessage));
-                                    }
-                                  };
-
-                              // Updates a large event in cloud storage (S3/Blob) with its
-                              // associated hash.
-                              if (StringUtils.isBlank(
-                                  documentCaptureMessage.getObjectNodeString())) {
-                                final byte[] eventWithHashBytes =
-                                    eventWithHash.getBytes(StandardCharsets.UTF_8);
-                                final InputStream eventWithHashStream =
-                                    new ByteArrayInputStream(eventWithHashBytes);
-                                final Map<String, String> eventStorageTags =
-                                    documentCaptureMessage.getEventStorageTags();
-
-                                storageService
-                                    .put(
-                                        documentCaptureMessage.getEventStorageKey(),
-                                        eventStorageTags.get("Content_Type"),
-                                        Optional.of((long) eventWithHashBytes.length),
-                                        eventStorageTags,
-                                        eventWithHashStream)
-                                    .replaceWithVoid()
-                                    .subscribe()
-                                    .with(
-                                        success -> {
-                                          Log.debug(
-                                              "Put event with Hash to StorageService completed for eventStorageKey : "
-                                                  + documentCaptureMessage.getEventStorageKey());
-                                          // Invoke the common emitter logic only after a successful
-                                          // put
-                                          emitValidationMessage.run();
-                                        },
-                                        failure -> {
-                                          Log.error(
-                                              "Put event with Hash to cloud storage failed for eventStorageKey : ",
-                                              documentCaptureMessage.getEventStorageKey(),
-                                              failure);
-                                        });
-                              } else {
-                                // Update small events (< 4KB) directly in the
-                                // DocumentCaptureMessage
-                                documentCaptureMessage.setObjectNodeString(eventWithHash);
-                                // Immediately emit since there's no asynchronous delay
-                                emitValidationMessage.run();
-                              }
-                            },
-                            failure -> {
-                              // If any failure occurred during validation then produce
-                              // (channel:epcis-event-validated-failure-out Topic:
-                              // epcis-event-validated-failure)
-                              log.info(
-                                  " ❌ Event validation was failed due to : {} ❌ ",
-                                  failure.getMessage(),
-                                  documentCaptureMessage.getEventStorageKey());
-                              final EPCISValidationMessage failureMessage =
-                                  new EPCISValidationMessage();
-                              failureMessage.updateFrom(documentCaptureMessage, invalidEPCISEvents);
-
-                              // If validation fails then produce
-                              // (channel:epcis-event-validated-failure-out Topic:
-                              // epcis-event-validated-failure)
-                              eventValidatedFailureEmitter.send(
-                                  Record.of(captureID, failureMessage));
-                            });
-
-                    // Prepare final validation message
-                    final EPCISValidationMessage msg = new EPCISValidationMessage();
-                    msg.updateFrom(documentCaptureMessage, invalidEPCISEvents);
-
-                    log.info(
-                        "validation result for {} = {}",
-                        documentCaptureMessage.getCaptureID(),
-                        msg);
-                    return KeyValue.pair(captureID, msg);
-                  } catch (Exception e) {
-                    // If any exception occur during the Event hash generation/validation then
-                    // produce (channel:epcis-event-validated-failure-out Topic:
-                    // epcis-event-validated-failure)
-                    log.error(
-                        " ❌ Exception occurred during validation/hash generation : {} ❌ ",
-                        e,
-                        documentCaptureMessage.getEventStorageKey());
-                    final EPCISValidationMessage exceptionMessage = new EPCISValidationMessage();
-                    exceptionMessage.updateFrom(
-                        documentCaptureMessage,
-                        List.of(
-                            new InvalidEPCISEventInfo(
-                                e.getClass().getSimpleName(),
-                                e.getMessage(),
-                                500,
-                                List.of(e.getStackTrace()).toString(),
-                                List.of(documentCaptureMessage.getEventIndex()))));
-                    eventValidatedFailureEmitter.send(Record.of(captureID, exceptionMessage));
-
-                    return KeyValue.pair(captureID, exceptionMessage);
-                  } finally {
-                  }
-                });
-
-    // If Validation unsuccessful in the above validationStream then consume from Topic:
-    // epcis-event-validated-failure and update the CaptureStatusMessage with INVALID info
-    // Consume from Topic: epcis-event-validated-failure and set CaptureStatus as Invalid and
-    // produce to Topic: capture-document-event
-    final KStream<String, EPCISValidationMessage> failedValidationStream =
-        builder.stream(
-            kafkaConfigurationService.topics().eventValidated() + "-failure",
-            Consumed.with(Serdes.String(), epcisEventValidationMessageSerde));
-    failedValidationStream
-        .map(
-            (k, v) -> {
-              final CaptureStatusMessage captureStatusMessage =
-                  CaptureStatusMessage.invalid(1, v.getErrors(), v.getMetadata());
-              captureStatusMessage.setTraceId(v.getTraceId());
-              captureStatusMessage.setSpanId(v.getSpanId());
-              captureStatusMessage.setDefaultGroup(v.getDefaultGroup());
-              return KeyValue.pair(k, captureStatusMessage);
-            })
-        .to(
-            kafkaConfigurationService.topics().captureDocsEvent(),
-            Produced.with(Serdes.String(), captureStatusSerde));
-
-    // If Validation unsuccessful in the above validationStream then consume from
-    // failedValidationStream (fixing for PROCEED behaviour as it was always set to running: true)
-    // Increase PROCESSED count by 1 for CaptureStatusMessage after Validation unsuccessful in the
-    // above validationStream
-    // Produce to Topic: capture-document-event Channel: capture-document-event-out
-    failedValidationStream
-        .map(
-            (captureID, eventValidationMessage) -> {
-              final CaptureStatusMessage captureStatusMessage =
-                  CaptureStatusMessage.processed(1, eventValidationMessage.getMetadata());
-              captureStatusMessage.setTraceId(eventValidationMessage.getTraceId());
-              captureStatusMessage.setSpanId(eventValidationMessage.getSpanId());
-              captureStatusMessage.setDefaultGroup(eventValidationMessage.getDefaultGroup());
-              return KeyValue.pair(captureID, captureStatusMessage);
-            })
-        .to(
-            kafkaConfigurationService.topics().captureDocsEvent(),
-            Produced.with(Serdes.String(), captureStatusSerde));
-
-    // If successfully validated in the above validationStream then consume from Topic:
-    // epcis-event-validated-success and update the CaptureStatusMessage with VALID/INVALID info
-    // On PERSISTENCE   Successful set CaptureStatus as Valid   and produce to Topic:
-    // capture-document-event Channel: capture-document-event-out
-    // On PERSISTENCE Unsuccessful set CaptureStatus as Invalid and produce to Topic:
-    // capture-document-event Channel: capture-document-event-out
-    KStream<String, EPCISValidationMessage> persistenceStream =
-        builder.stream(
-                kafkaConfigurationService.topics().eventValidated() + "-success",
-                Consumed.with(Serdes.String(), epcisEventValidationMessageSerde))
-            .map(
-                (KeyValueMapper<
-                        String, EPCISValidationMessage, KeyValue<String, EPCISValidationMessage>>)
-                    (captureID, eventValidationMessage) -> {
-                      try  {
-
-                        ObjectNode singleEventNode;
-
-                        // If event is above 4kb and stored in s3 then get event from s3 and
-                        // continue processing
-                        if (StringUtils.isBlank(eventValidationMessage.getObjectNodeString())) {
-                          Log.debug(
-                              "Getting the event with Hash >4kb from StorageService for persisting");
-                          singleEventNode =
-                              (ObjectNode)
-                                  objectMapper.readTree(
-                                      storageService.get(
-                                          eventValidationMessage.getEventStorageKey()));
-                        } else {
-                          // If event below 4kb and stored as string in documentCaptureMessage then
-                          // read and continue as before
-                          Log.debug(
-                              "Event with Hash <4kb from DocumentCaptureMessage objectNodeString");
-                          singleEventNode =
-                              (ObjectNode)
-                                  objectMapper.readTree(
-                                      eventValidationMessage.getObjectNodeString());
-                        }
-
-                        final Pair<ObjectNode, Map<String, Object>> eventAndContextPair =
-                            EPCISEventObjectNodeUtil.extractEventAndContextNodeFromDocument(
-                                singleEventNode, objectMapper);
-                        final Map<String, Object> contextAsMap = eventAndContextPair.getValue();
-                        final ObjectNode eventNode = eventAndContextPair.getKey();
-                        final List<InvalidEPCISEventInfo> invalidEventsInfo =
-                            new ArrayList<>(eventValidationMessage.getErrors());
-
-                        // Check if there is an error declaration, delete events reactively and
-                        // record exception if any
-                        if (eventNode.has(Constants.ERROR_DECLARATION)
-                            && eventNode.hasNonNull(Constants.EVENT_ID)) {
-                          final String eventID = eventNode.get(Constants.EVENT_ID).toString();
-
-                          epcisEventPersistenceService
-                              .deleteEventsFromID(eventID)
-                              .onFailure()
-                              .invoke(
-                                  failure -> {
-                                    log.error(
-                                        "Error while deleting events for the eventID: {}",
-                                        eventID,
-                                        failure.getMessage());
-                                  })
-                              .subscribe()
-                              .with(
-                                  success -> {
-                                    // If the event is successfully deleted from the repository.
-                                    if (Boolean.TRUE.equals(success)) {
-                                      log.debug(
-                                          "Successfully deleted event for the eventID: {}",
-                                          eventID);
-                                    } else {
-                                      // If the event is unable to delete from the repository such
-                                      // as event does not exist issue or permission.
-                                      log.warn(
-                                          "Failed to delete event for the eventID: {}", eventID);
-                                    }
-                                    // If any error occurs during the deletion
-                                  },
-                                  throwable -> {
-                                    log.error(
-                                        "Unable to delete event for the eventID: {}",
-                                        eventID,
-                                        throwable.getMessage());
-                                  });
-                        }
-
-                        // For proceed we ignore invalid events, and just skip the event
-                        if (eventValidationMessage.isProceed() && !invalidEventsInfo.isEmpty()) {
-                          if (invalidEventsInfo.stream()
-                              .flatMap(
-                                  invalidEPCISEventInfo ->
-                                      invalidEPCISEventInfo.getSequenceInEPCISDoc().stream())
-                              .anyMatch(i -> i == eventValidationMessage.getEventIndex())) {
-                            log.debug(
-                                "Invalid event at index: {}, proceeding to next one ",
-                                eventValidationMessage.getEventIndex());
-                          }
-                        } else {
-                          Log.debug("Persisting the event to Repository");
-
-                          // Try to persist the event if any error/exception occurs then throw them
-                          // and stop execution
-                          epcisEventPersistenceService
-                              .persistEvent(
-                                  singleEventNode,
-                                  eventNode,
-                                  eventValidationMessage.getCaptureID(),
-                                  contextAsMap,
-                                  invalidEventsInfo,
-                                  eventValidationMessage.isProceed(),
-                                  eventValidationMessage.getEventIndex(),
-                                  eventValidationMessage.getMetadata(),
-                                  false,
-                                  eventValidationMessage.getDefaultGroup())
-                              .onFailure()
-                              .recoverWithUni(
-                                  failure -> {
-                                    log.info(" ❌ Failure occurred during event persistence!!! ❌ ");
-                                    return Uni.createFrom()
-                                        .failure(
-                                            new PersistenceException(
-                                                ERROR_WHILE_PERSISTING_EVENT, failure));
-                                  })
-                              .subscribe()
-                              .with(
-                                  item -> {
-                                    log.debug(" ✅ Event persistence was successful!!! ✅ ");
-
-                                    // If persistence success then write to Kafka topic (Channel:
-                                    // capture-document-event-out, capture-docs-event:
-                                    // capture-document-event)
-                                    final CaptureStatusMessage captureStatusMessage =
-                                        CaptureStatusMessage.valid(
-                                            1, eventValidationMessage.getMetadata());
-                                    captureStatusMessage.setTraceId(
-                                        eventValidationMessage.getTraceId());
-                                    captureStatusMessage.setSpanId(
-                                        eventValidationMessage.getSpanId());
-                                    captureStatusMessage.setDefaultGroup(
-                                        eventValidationMessage.getDefaultGroup());
-                                    captureStatusMessageEmitter.send(
-                                        Record.of(captureID, captureStatusMessage));
-                                  },
-                                  failure -> {
-                                    log.warn(" Event persistence was failed for captureID!!! ");
-
-                                    // If persistence failed then write to Kafka topic (Channel:
-                                    // capture-document-event-out, capture-docs-event:
-                                    // capture-document-event)
-                                    final CaptureStatusMessage captureStatusMessage =
-                                        CaptureStatusMessage.invalid(
-                                            1,
-                                            invalidEventsInfo,
-                                            eventValidationMessage.getMetadata());
-                                    captureStatusMessage.setTraceId(
-                                        eventValidationMessage.getTraceId());
-                                    captureStatusMessage.setSpanId(
-                                        eventValidationMessage.getSpanId());
-                                    captureStatusMessage.setDefaultGroup(
-                                        eventValidationMessage.getDefaultGroup());
-                                    captureStatusMessageEmitter.send(
-                                        Record.of(captureID, captureStatusMessage));
-                                  });
-                        }
-                        final EPCISValidationMessage msg = new EPCISValidationMessage();
-                        msg.updateFrom(eventValidationMessage, invalidEventsInfo);
-
-                        log.debug(
-                            "persistence result for {} = {} ",
-                            eventValidationMessage.getCaptureID(),
-                            msg);
-                        return KeyValue.pair(captureID, msg);
-                      } catch (Exception e) {
-                        log.error(" {}", e.getMessage(), e);
-                        final EPCISValidationMessage exceptionMessage =
-                            new EPCISValidationMessage();
-                        exceptionMessage.updateFrom(
-                            eventValidationMessage,
-                            List.of(
-                                new InvalidEPCISEventInfo(
-                                    e.getClass().getSimpleName(),
-                                    e.getMessage(),
-                                    500,
-                                    List.of(e.getStackTrace()).toString(),
-                                    List.of(eventValidationMessage.getEventIndex()))));
-                        return KeyValue.pair(captureID, exceptionMessage);
-                      }
-                    });
-
-    // Write to Kafka Topic: epcis-event-persisted after event has been sent to persistence to track
-    // the PROCESSED event
-    persistenceStream.to(
-        kafkaConfigurationService.topics().eventPersisted(),
-        Produced.with(Serdes.String(), epcisEventValidationMessageSerde));
-
-    // Consume the information from Kafka Topic: epcis-event-persisted to keep track of PROCESSED
-    // event
-    var captureInfoStream =
-        builder.stream(
-            kafkaConfigurationService.topics().eventPersisted(),
-            Consumed.with(Serdes.String(), epcisEventValidationMessageSerde));
-
-    // Increase PROCESSED count by 1 for CaptureStatusMessage after sending events to
-    // epcisEventPersistenceService.persistEvent
-    // Produce to Topic: capture-document-event Channel: capture-document-event-out
-    captureInfoStream
-        .map(
-            (captureID, eventValidationMessage) -> {
-              final CaptureStatusMessage captureStatusMessage =
-                  CaptureStatusMessage.processed(1, eventValidationMessage.getMetadata());
-              captureStatusMessage.setTraceId(eventValidationMessage.getTraceId());
-              captureStatusMessage.setSpanId(eventValidationMessage.getSpanId());
-              captureStatusMessage.setDefaultGroup(eventValidationMessage.getDefaultGroup());
-              return KeyValue.pair(captureID, captureStatusMessage);
-            })
-        .to(
-            kafkaConfigurationService.topics().captureDocsEvent(),
-            Produced.with(Serdes.String(), captureStatusSerde));
-
-    // Read messages from kafka topics and attach the tracing information
-    builder.stream(
-            kafkaConfigurationService.topics().captureDocsAgg(),
-            Consumed.with(Serdes.String(), captureDataSerde))
-        .foreach(
-            (captureID, captureJobStatus) -> {
-              log.debug("aggregation: {} = {}", captureID, captureJobStatus.toString());
-            });
+    initializeSerdes(builder);
+    configureEventCountHandling(builder);
+    configureCaptureJobAggregation(builder);
+    configureValidation(builder);
+    configureFailedValidationHandling(builder);
+    configurePersistence(builder);
+    configureProcessedCountUpdate(builder);
 
     return builder.build();
   }
+
+  /* ===================================================================== */
+  /* === Configuration Methods ============================================ */
+  /* ===================================================================== */
+
+  private SerdeConfiguration initializeSerdes(StreamsBuilder builder) {
+    return new SerdeConfiguration(
+            new ObjectMapperSerde<>(CaptureJobStatusMessage.class),
+            new ObjectMapperSerde<>(CaptureStatusMessage.class),
+            new ObjectMapperSerde<>(DocumentCaptureMessage.class),
+            new ObjectMapperSerde<>(EPCISValidationMessage.class),
+            new ObjectMapperSerde<>(EventCountMessage.class),
+            Stores.persistentKeyValueStore(kafkaConfigurationService.stores().captureDocsStore())
+    );
+  }
+
+  private void configureEventCountHandling(StreamsBuilder builder) {
+    var serdes = initializeSerdes(builder);
+
+    var eventCountStream = builder.stream(
+            kafkaConfigurationService.topics().captureDocEventCount(),
+            Consumed.with(Serdes.String(), serdes.eventCountSerde()));
+
+    eventCountStream
+            .map(this::mapEventCountToCaptureStatus)
+            .to(kafkaConfigurationService.topics().captureDocsEvent(),
+                    Produced.with(Serdes.String(), serdes.captureStatusSerde()));
+  }
+
+  private void configureCaptureJobAggregation(StreamsBuilder builder) {
+    var serdes = initializeSerdes(builder);
+
+    final GlobalKTable<String, CaptureJobStatusMessage> docs = builder.globalTable(
+            kafkaConfigurationService.topics().captureDocs(),
+            Consumed.with(Serdes.String(), serdes.captureDataSerde()),
+            Materialized.as(kafkaConfigurationService.stores().globalCaptureJobMessageStore()));
+
+    final KStream<String, CaptureStatusMessage> eventStatusStream = builder.stream(
+            kafkaConfigurationService.topics().captureDocsEvent(),
+            Consumed.with(Serdes.String(), serdes.captureStatusSerde()));
+
+    eventStatusStream.foreach((captureID, msg) ->
+            log.debug("event count {} = {}", captureID, msg));
+
+    final KStream<String, CaptureJobStatusMessage> joinedEventStatusStream = eventStatusStream
+            .join(docs, (captureID, captureStatus) -> captureID, this::createAggregation)
+            .groupByKey()
+            .aggregate(CaptureJobStatusMessage::new, this::aggregateJobStatus,
+                    Materialized.<String, CaptureJobStatusMessage>as(serdes.storeSupplier())
+                            .withKeySerde(Serdes.String())
+                            .withValueSerde(serdes.captureDataSerde()))
+            .toStream();
+
+    joinedEventStatusStream
+            .filter((captureID, status) -> status.getFinishedAt() != null)
+            .foreach(this::handleFinishedCaptureJob);
+
+    joinedEventStatusStream.to(kafkaConfigurationService.topics().captureDocs(),
+            Produced.with(Serdes.String(), serdes.captureDataSerde()));
+  }
+
+  private void configureValidation(StreamsBuilder builder) {
+    var serdes = initializeSerdes(builder);
+
+    builder.stream(kafkaConfigurationService.topics().epcisEventCaptured(),
+                    Consumed.with(Serdes.String(), serdes.documentCapturedMessageSerde()))
+            .map(this::processValidationMessage);
+  }
+
+  private void configureFailedValidationHandling(StreamsBuilder builder) {
+    var serdes = initializeSerdes(builder);
+
+    final KStream<String, EPCISValidationMessage> failedValidationStream = builder.stream(
+            kafkaConfigurationService.topics().eventValidated() + "-failure",
+            Consumed.with(Serdes.String(), serdes.epcisEventValidationMessageSerde()));
+
+    failedValidationStream
+            .map(this::toInvalidStatus)
+            .to(kafkaConfigurationService.topics().captureDocsEvent(),
+                    Produced.with(Serdes.String(), serdes.captureStatusSerde()));
+
+    failedValidationStream
+            .map(this::toProcessedStatus)
+            .to(kafkaConfigurationService.topics().captureDocsEvent(),
+                    Produced.with(Serdes.String(), serdes.captureStatusSerde()));
+  }
+
+  private void configurePersistence(StreamsBuilder builder) {
+    var serdes = initializeSerdes(builder);
+
+    KStream<String, EPCISValidationMessage> persistenceStream = builder.stream(
+                    kafkaConfigurationService.topics().eventValidated() + "-success",
+                    Consumed.with(Serdes.String(), serdes.epcisEventValidationMessageSerde()))
+            .map(this::processPersistenceMessage);
+
+    persistenceStream.to(kafkaConfigurationService.topics().eventPersisted(),
+            Produced.with(Serdes.String(), serdes.epcisEventValidationMessageSerde()));
+  }
+
+  private void configureProcessedCountUpdate(StreamsBuilder builder) {
+    var serdes = initializeSerdes(builder);
+
+    var captureInfoStream = builder.stream(
+            kafkaConfigurationService.topics().eventPersisted(),
+            Consumed.with(Serdes.String(), serdes.epcisEventValidationMessageSerde()));
+
+    captureInfoStream
+            .map(this::toProcessedStatus)
+            .to(kafkaConfigurationService.topics().captureDocsEvent(),
+                    Produced.with(Serdes.String(), serdes.captureStatusSerde()));
+
+    builder.stream(kafkaConfigurationService.topics().captureDocsAgg(),
+                    Consumed.with(Serdes.String(), serdes.captureDataSerde()))
+            .foreach((captureID, status) -> log.debug("aggregation: {} = {}", captureID, status));
+  }
+
+  /* ===================================================================== */
+  /* === Helper Methods ==================================================== */
+  /* ===================================================================== */
+
+  /**
+   * Safely parses JSON input stream to ObjectNode with proper error handling.
+   */
+  private static ObjectNode parseObjectNode(ObjectMapper mapper, InputStream is) throws IOException {
+    JsonNode node = mapper.readTree(is);
+    if (node instanceof ObjectNode objectNode) {
+      return objectNode;
+    }
+    throw new IllegalArgumentException("Expected JSON ObjectNode but got " + node.getNodeType());
+  }
+
+  /**
+   * Safely parses JSON string to ObjectNode with proper error handling.
+   */
+  private static ObjectNode parseObjectNode(ObjectMapper mapper, String json) throws IOException {
+    JsonNode node = mapper.readTree(json);
+    if (node instanceof ObjectNode objectNode) {
+      return objectNode;
+    }
+    throw new IllegalArgumentException("Expected JSON ObjectNode but got " + node.getNodeType());
+  }
+
+  /**
+   * Reads event data from storage or string based on size.
+   */
+  private EventData readEventData(DocumentCaptureMessage docMsg) throws IOException {
+    if (StringUtils.isBlank(docMsg.getObjectNodeString())) {
+      log.debug("Reading large event (>{}kb) from StorageService {}",
+              LARGE_EVENT_THRESHOLD_KB, docMsg.getStorageKey());
+
+      try (InputStream originalStream = storageService.get(docMsg.getEventStorageKey())) {
+        byte[] content = originalStream.readAllBytes();
+
+        // Generate hash first
+        String[] hashes = eventHashGenerator
+                .fromJson(new ByteArrayInputStream(content), "sha-256")
+                .subscribe().asStream().toList().toArray(new String[0]);
+
+        // Parse JSON
+        ObjectNode eventNode = parseObjectNode(objectMapper, new ByteArrayInputStream(content));
+
+        return new EventData(eventNode, hashes, true);
+      }
+    } else {
+      Log.debug(String.format("Reading small event (<%d kb) from DocumentCaptureMessage", LARGE_EVENT_THRESHOLD_KB));
+
+      String eventString = docMsg.getObjectNodeString();
+      ObjectNode eventNode = parseObjectNode(objectMapper, eventString);
+
+      String[] hashes = eventHashGenerator
+              .fromJson(new ByteArrayInputStream(eventString.getBytes(StandardCharsets.UTF_8)), "sha-256")
+              .subscribe().asStream().toList().toArray(new String[0]);
+
+      return new EventData(eventNode, hashes, false);
+    }
+  }
+
+  private KeyValue<String, CaptureStatusMessage> mapEventCountToCaptureStatus(String captureID, EventCountMessage eventCount) {
+    final CaptureStatusMessage captureStatusMessage = CaptureStatusMessage.eventCapturedCount(
+            eventCount.getCount(), new HashMap<>());
+    captureStatusMessage.setTraceId(eventCount.getTraceId());
+    captureStatusMessage.setSpanId(eventCount.getSpanId());
+    captureStatusMessage.setDefaultGroup(eventCount.getDefaultGroup());
+    return KeyValue.pair(captureID, captureStatusMessage);
+  }
+
+  private CaptureJobStatusMessageAggregation createAggregation(String captureID,
+                                                               CaptureStatusMessage captureStatus, CaptureJobStatusMessage captureJobStatus) {
+    return new CaptureJobStatusMessageAggregation(
+            captureJobStatus, captureStatus, epcisEventPersistenceService);
+  }
+
+  private CaptureJobStatusMessage aggregateJobStatus(String captureID,
+                                                     CaptureJobStatusMessageAggregation aggregation, CaptureJobStatusMessage jobStatus) {
+    return aggregation
+            .update(jobStatus)
+            .chain(msg -> {
+              log.debug("aggregating from {}", msg);
+              msg.setErrors(InvalidEventInfoUtil.condenseInvalidInfos(msg.getErrors()));
+              return Uni.createFrom().item(msg);
+            })
+            .subscribe()
+            .asCompletionStage()
+            .join();
+  }
+
+  private KeyValue<String, EPCISValidationMessage> processValidationMessage(String captureID,
+                                                                            DocumentCaptureMessage documentCaptureMessage) {
+    try {
+      EventData eventData = readEventData(documentCaptureMessage);
+
+      // Extract event and context
+      final Pair<ObjectNode, Map<String, Object>> eventAndContextPair =
+              EPCISEventObjectNodeUtil.extractEventAndContextNodeFromDocument(
+                      eventData.eventNode(), objectMapper);
+      final Map<String, Object> contextAsMap = eventAndContextPair.getValue();
+      final ObjectNode eventNode = eventAndContextPair.getKey();
+
+      final List<InvalidEPCISEventInfo> invalidEPCISEvents = new ArrayList<>();
+
+      epcisEventValidationService
+              .validateEvent(
+                      eventData.eventNode(),
+                      eventNode,
+                      eventData.hashes(),
+                      contextAsMap,
+                      documentCaptureMessage.getCaptureID(),
+                      invalidEPCISEvents,
+                      documentCaptureMessage.getEventIndex(),
+                      documentCaptureMessage.getEventIDs(),
+                      eventNode.has(Constants.ERROR_DECLARATION),
+                      documentCaptureMessage.getMetadata())
+              .subscribe()
+              .with(
+                      item -> handleValidationSuccess(captureID, documentCaptureMessage,
+                              eventData.eventNode(), invalidEPCISEvents, eventData.isLargeEvent()),
+                      failure -> handleValidationFailure(captureID, documentCaptureMessage,
+                              invalidEPCISEvents, failure));
+
+      final EPCISValidationMessage msg = new EPCISValidationMessage();
+      msg.updateFrom(documentCaptureMessage, invalidEPCISEvents);
+      log.info("validation result for {} = {}", documentCaptureMessage.getCaptureID(), msg);
+      return KeyValue.pair(captureID, msg);
+
+    } catch (Exception e) {
+      log.error("Exception during validation/hash generation: {}", e.getMessage(), e);
+      return handleValidationException(captureID, documentCaptureMessage, e);
+    }
+  }
+
+  private KeyValue<String, EPCISValidationMessage> processPersistenceMessage(String captureID,
+                                                                             EPCISValidationMessage eventValidationMessage) {
+    try {
+      ObjectNode singleEventNode = readEventForPersistence(eventValidationMessage);
+
+      final Pair<ObjectNode, Map<String, Object>> eventAndContextPair =
+              EPCISEventObjectNodeUtil.extractEventAndContextNodeFromDocument(singleEventNode, objectMapper);
+      final Map<String, Object> contextAsMap = eventAndContextPair.getValue();
+      final ObjectNode eventNode = eventAndContextPair.getKey();
+      final List<InvalidEPCISEventInfo> invalidEventsInfo = new ArrayList<>(eventValidationMessage.getErrors());
+
+      if (eventNode.has(Constants.ERROR_DECLARATION) && eventNode.hasNonNull(Constants.EVENT_ID)) {
+        handleErrorDeclaration(eventNode);
+      }
+
+      if (shouldSkipInvalidEvent(eventValidationMessage, invalidEventsInfo)) {
+        log.debug("Invalid event at index: {}, proceeding", eventValidationMessage.getEventIndex());
+      } else {
+        persistEvent(captureID, eventValidationMessage, singleEventNode, eventNode, contextAsMap, invalidEventsInfo);
+      }
+
+      final EPCISValidationMessage msg = new EPCISValidationMessage();
+      msg.updateFrom(eventValidationMessage, invalidEventsInfo);
+      log.debug("persistence result for {} = {}", eventValidationMessage.getCaptureID(), msg);
+      return KeyValue.pair(captureID, msg);
+
+    } catch (Exception e) {
+      log.error("Exception during persistence: {}", e.getMessage(), e);
+      return handlePersistenceException(captureID, eventValidationMessage, e);
+    }
+  }
+
+  private ObjectNode readEventForPersistence(EPCISValidationMessage validationMessage) throws IOException {
+    if (StringUtils.isBlank(validationMessage.getObjectNodeString())) {
+      Log.debug(String.format("Getting large event (>%d kb) from StorageService for persistence", LARGE_EVENT_THRESHOLD_KB));
+      try (InputStream stream = storageService.get(validationMessage.getEventStorageKey())) {
+        return parseObjectNode(objectMapper, stream);
+      }
+    } else {
+      Log.debug(String.format("Reading small event (<%d kb) from DocumentCaptureMessage", LARGE_EVENT_THRESHOLD_KB));
+      return parseObjectNode(objectMapper, validationMessage.getObjectNodeString());
+    }
+  }
+
+  private boolean shouldSkipInvalidEvent(EPCISValidationMessage validationMessage,
+                                         List<InvalidEPCISEventInfo> invalidEventsInfo) {
+    return validationMessage.isProceed() && !invalidEventsInfo.isEmpty() &&
+            invalidEventsInfo.stream()
+                    .flatMap(i -> i.getSequenceInEPCISDoc().stream())
+                    .anyMatch(i -> i == validationMessage.getEventIndex());
+  }
+
+  private void handleValidationSuccess(String captureID, DocumentCaptureMessage docMsg,
+                                       ObjectNode singleEventNode, List<InvalidEPCISEventInfo> invalidEPCISEvents, boolean isLargeEvent) {
+    final String eventWithHash = singleEventNode.toString();
+    final Runnable emitValidationResult = () -> {
+      EPCISValidationMessage vm = new EPCISValidationMessage();
+      vm.updateFrom(docMsg, invalidEPCISEvents);
+
+      if (invalidEPCISEvents.isEmpty()) {
+        Log.debug("✅ Event validation successful");
+        eventValidatedSuccessEmitter.send(Record.of(captureID, vm));
+      } else {
+        Log.debug("❌ Event validation failed");
+        eventValidatedFailureEmitter.send(Record.of(captureID, vm));
+      }
+    };
+
+    if (isLargeEvent) {
+      updateLargeEventInStorage(docMsg, eventWithHash, emitValidationResult);
+    } else {
+      docMsg.setObjectNodeString(eventWithHash);
+      emitValidationResult.run();
+    }
+  }
+
+  private void updateLargeEventInStorage(DocumentCaptureMessage docMsg, String eventWithHash,
+                                         Runnable callback) {
+    byte[] bytes = eventWithHash.getBytes(StandardCharsets.UTF_8);
+    InputStream stream = new ByteArrayInputStream(bytes);
+    Map<String, String> tags = docMsg.getEventStorageTags();
+
+    storageService.put(
+                    docMsg.getEventStorageKey(),
+                    tags.get("Content_Type"),
+                    Optional.of((long) bytes.length),
+                    tags,
+                    stream)
+            .replaceWithVoid()
+            .subscribe()
+            .with(
+                    success -> {
+                      Log.debug(String.format("Successfully updated event with hash for key: %s", docMsg.getEventStorageKey()));
+                      callback.run();
+                    },
+                    failure -> Log.error(String.format("Failed to update event with hash for key: %s", docMsg.getEventStorageKey()), failure));
+  }
+
+  private void handleValidationFailure(String captureID, DocumentCaptureMessage docMsg,
+                                       List<InvalidEPCISEventInfo> invalids, Throwable failure) {
+    log.info("❌ Event validation failed: {}", failure.getMessage());
+    EPCISValidationMessage vm = new EPCISValidationMessage();
+    vm.updateFrom(docMsg, invalids);
+    eventValidatedFailureEmitter.send(Record.of(captureID, vm));
+  }
+
+  private KeyValue<String, EPCISValidationMessage> handleValidationException(String captureID,
+                                                                             DocumentCaptureMessage docMsg, Exception e) {
+    final EPCISValidationMessage exceptionMessage = new EPCISValidationMessage();
+    exceptionMessage.updateFrom(docMsg, List.of(
+            new InvalidEPCISEventInfo(
+                    e.getClass().getSimpleName(),
+                    e.getMessage(),
+                    500,
+                    Arrays.toString(e.getStackTrace()),
+                    List.of(docMsg.getEventIndex()))));
+    eventValidatedFailureEmitter.send(Record.of(captureID, exceptionMessage));
+    return KeyValue.pair(captureID, exceptionMessage);
+  }
+
+  private KeyValue<String, EPCISValidationMessage> handlePersistenceException(String captureID,
+                                                                              EPCISValidationMessage validationMessage, Exception e) {
+    final EPCISValidationMessage exceptionMessage = new EPCISValidationMessage();
+    exceptionMessage.updateFrom(validationMessage, List.of(
+            new InvalidEPCISEventInfo(
+                    e.getClass().getSimpleName(),
+                    e.getMessage(),
+                    500,
+                    Arrays.toString(e.getStackTrace()),
+                    List.of(validationMessage.getEventIndex()))));
+    return KeyValue.pair(captureID, exceptionMessage);
+  }
+
+  private KeyValue<String, CaptureStatusMessage> toInvalidStatus(String key, EPCISValidationMessage v) {
+    CaptureStatusMessage m = CaptureStatusMessage.invalid(1, v.getErrors(), v.getMetadata());
+    m.setTraceId(v.getTraceId());
+    m.setSpanId(v.getSpanId());
+    m.setDefaultGroup(v.getDefaultGroup());
+    return KeyValue.pair(key, m);
+  }
+
+  private KeyValue<String, CaptureStatusMessage> toProcessedStatus(String captureID, EPCISValidationMessage v) {
+    CaptureStatusMessage m = CaptureStatusMessage.processed(1, v.getMetadata());
+    m.setTraceId(v.getTraceId());
+    m.setSpanId(v.getSpanId());
+    m.setDefaultGroup(v.getDefaultGroup());
+    return KeyValue.pair(captureID, m);
+  }
+
+  private void handleFinishedCaptureJob(String captureID, CaptureJobStatusMessage msg) {
+    try {
+      if (msg.getInvalidEventCount() > 0 && msg.isRollback()) {
+        epcisEventPersistenceService.removeEventsForCaptureID(
+                        msg.getCaptureID(), msg.getCreatedAt(), msg.getDefaultGroup())
+                .subscribe()
+                .with(
+                        success -> log.debug("Deleted events for captureId: {}", msg.getCaptureID()),
+                        throwable -> log.error("Error deleting events for captureId: {}",
+                                msg.getCaptureID(), throwable));
+        log.debug("EPCIS document with captureId={} rolled back due to invalid events", captureID);
+      }
+
+      if (msg.getCapturedEventCount() > msg.getProcessedEventCount()) {
+        msg.setCapturedEventCount(msg.getProcessedEventCount());
+        msg.setFinishedAt(OffsetDateTime.now());
+        msg.setSuccess(msg.getErrors().isEmpty());
+        msg.setRunning(false);
+      }
+
+      reactiveRepository.saveCaptureJob(msg, captureID, msg.getCreatedAt(),
+                      msg.getDefaultGroup(), msg.getMetadata())
+              .onFailure()
+              .invoke(f -> log.error("Error saving capture job: {}", f.getMessage()))
+              .subscribe()
+              .with(
+                      res -> log.debug("Saved capture job {}", captureID),
+                      throwable -> log.debug("Failed to save capture job {}", captureID, throwable));
+    } catch (Exception e) {
+      log.error("Exception in handleFinishedCaptureJob: {}", e.getMessage(), e);
+    }
+  }
+
+  private void handleErrorDeclaration(ObjectNode eventNode) {
+    String eventID = eventNode.get(Constants.EVENT_ID).toString();
+    epcisEventPersistenceService.deleteEventsFromID(eventID)
+            .onFailure()
+            .invoke(f -> log.error("Error deleting events for eventID: {}", eventID, f))
+            .subscribe()
+            .with(
+                    success -> {
+                      if (Boolean.TRUE.equals(success)) {
+                        log.debug("Deleted event for eventID: {}", eventID);
+                      } else {
+                        log.warn("Failed to delete event for eventID: {}", eventID);
+                      }
+                    },
+                    throwable -> log.error("Unable to delete event for eventID: {}", eventID, throwable));
+  }
+
+  private void persistEvent(String captureID, EPCISValidationMessage vMsg, ObjectNode singleEventNode,
+                            ObjectNode eventNode, Map<String, Object> contextAsMap, List<InvalidEPCISEventInfo> invalidEventsInfo) {
+    Log.debug("Persisting event to Repository");
+    epcisEventPersistenceService.persistEvent(
+                    singleEventNode, eventNode, vMsg.getCaptureID(), contextAsMap, invalidEventsInfo,
+                    vMsg.isProceed(), vMsg.getEventIndex(), vMsg.getMetadata(), false, vMsg.getDefaultGroup())
+            .onFailure()
+            .recoverWithUni(failure -> {
+              log.info("❌ Failure during event persistence");
+              return Uni.createFrom().failure(new PersistenceException(ERROR_WHILE_PERSISTING_EVENT, failure));
+            })
+            .subscribe()
+            .with(
+                    item -> {
+                      log.debug("✅ Event persistence successful");
+                      CaptureStatusMessage m = CaptureStatusMessage.valid(1, vMsg.getMetadata());
+                      setTraceInfo(m, vMsg);
+                      captureStatusMessageEmitter.send(Record.of(captureID, m));
+                    },
+                    failure -> {
+                      log.warn("Event persistence failed for captureID {}", captureID);
+                      CaptureStatusMessage m = CaptureStatusMessage.invalid(1, invalidEventsInfo, vMsg.getMetadata());
+                      setTraceInfo(m, vMsg);
+                      captureStatusMessageEmitter.send(Record.of(captureID, m));
+                    });
+  }
+
+  private void setTraceInfo(CaptureStatusMessage message, EPCISValidationMessage source) {
+    message.setTraceId(source.getTraceId());
+    message.setSpanId(source.getSpanId());
+    message.setDefaultGroup(source.getDefaultGroup());
+  }
+
+  /* ===================================================================== */
+  /* === Data Classes ===================================================== */
+  /* ===================================================================== */
+
+  private record EventData(ObjectNode eventNode, String[] hashes, boolean isLargeEvent) {}
+
+  private record SerdeConfiguration(
+          ObjectMapperSerde<CaptureJobStatusMessage> captureDataSerde,
+          ObjectMapperSerde<CaptureStatusMessage> captureStatusSerde,
+          ObjectMapperSerde<DocumentCaptureMessage> documentCapturedMessageSerde,
+          ObjectMapperSerde<EPCISValidationMessage> epcisEventValidationMessageSerde,
+          ObjectMapperSerde<EventCountMessage> eventCountSerde,
+          KeyValueBytesStoreSupplier storeSupplier
+  ) {}
 }
