@@ -267,8 +267,8 @@ public class CaptureContextTopology {
    */
   private EventData readEventData(DocumentCaptureMessage docMsg) throws IOException {
     if (StringUtils.isBlank(docMsg.getObjectNodeString())) {
-      log.debug("Reading large event (>{}kb) from StorageService {}",
-              LARGE_EVENT_THRESHOLD_KB, docMsg.getStorageKey());
+      log.debug(String.format("Reading large event (>%d kb) from StorageService %s",
+              LARGE_EVENT_THRESHOLD_KB, docMsg.getStorageKey()));
 
       try (InputStream originalStream = storageService.get(docMsg.getEventStorageKey())) {
         byte[] content = originalStream.readAllBytes();
@@ -406,11 +406,19 @@ public class CaptureContextTopology {
     if (StringUtils.isBlank(validationMessage.getObjectNodeString())) {
       Log.debug(String.format("Getting large event (>%d kb) from StorageService for persistence", LARGE_EVENT_THRESHOLD_KB));
       try (InputStream stream = storageService.get(validationMessage.getEventStorageKey())) {
-        return parseObjectNode(objectMapper, stream);
+        byte[] content = stream.readAllBytes();
+        if (content.length == 0) {
+          throw new IOException("Storage content is empty for key: " + validationMessage.getEventStorageKey());
+        }
+        return parseObjectNode(objectMapper, new ByteArrayInputStream(content));
       }
     } else {
       Log.debug(String.format("Reading small event (<%d kb) from DocumentCaptureMessage", LARGE_EVENT_THRESHOLD_KB));
-      return parseObjectNode(objectMapper, validationMessage.getObjectNodeString());
+      String jsonString = validationMessage.getObjectNodeString();
+      if (StringUtils.isBlank(jsonString)) {
+        throw new IOException("ObjectNodeString is empty for small event");
+      }
+      return parseObjectNode(objectMapper, jsonString);
     }
   }
 
