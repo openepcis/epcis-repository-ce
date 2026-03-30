@@ -151,7 +151,7 @@ docker compose -f docker-compose.rest-api-ce.yml up -d
 docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
 
 # Restart REST API to pick up topics
-podman restart quarkus-rest-api-ce
+docker restart quarkus-rest-api-ce
 
 # check logs
 docker logs --tail 250 -f quarkus-rest-api-ce
@@ -166,7 +166,7 @@ docker compose -f docker-compose.rest-api-re.yml up -d
 docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
 
 # Restart REST API to pick up topics
-podman restart quarkus-rest-api-re
+docker restart quarkus-rest-api-re
 
 # check logs
 docker logs --tail 250 -f quarkus-rest-api-re
