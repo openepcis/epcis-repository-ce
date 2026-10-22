@@ -26,11 +26,9 @@ see [/docker/README.md](../../docker/README.md) for using docker.
 
 Choose one of the following editions:
 
-* **Research Edition** – SAX-based converter (high performance, minimal dependencies)
 * **Community Edition** – XSLT-based converter (closer to EPCIS 1.2 XML structure)
 
 ```shell
-# Start Research Edition (SAX-based)
 podman-compose -f docker-compose.yml -f docker-compose.rest-api-re.yml up -d
 
 # Run one-time Kafka topic setup
