@@ -1,79 +1,34 @@
 # Capturing Events into OpenEPCIS
 
-## Prepare for Capturing
-
-The OpenEPCIS repository supports capturing EPCIS 2.0 events via a simple REST API. This guide walks you through setting up the environment, registering optional 'example' user extension schemas (used in many examples), capturing events, and verifying the results.
-
----
-
-## 1. Set Up Your Local OpenEPCIS Environment
-
-### Prepare Backend Services
-
-Use the setup in [`docker`](../../docker) directory, which you’ll find at the root of this repository. From here (`examples/getting-started/`), navigate up two levels. The Docker setup provides a preconfigured, minimal OpenEPCIS stack with:
-
-* OpenSearch + Dashboards
-* Kafka
-* OpenEPCIS Repository (REST interface)
-
-### Start Core Infrastructure
-
-see [/docker/README.md](../../docker/README.md) for using docker.
-
-### Run OpenEPCIS Repository Services Locally
-
-#### Option 1: Use Podman (Recommended)
-
-Choose one of the following editions:
-
-* **Community Edition** – XSLT-based converter (closer to EPCIS 1.2 XML structure)
-
-```shell
-podman-compose -f docker-compose.yml -f docker-compose.rest-api-re.yml up -d
-
-# Run one-time Kafka topic setup
-podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-
-# Restart REST API to pick up topics
-podman restart quarkus-rest-api-re
-
-# check logs
-podman logs --tail 250 -f quarkus-rest-api-re
-```
-
-```shell
-# OR: Start Community Edition (XSLT-based)
-podman-compose -f docker-compose.yml -f docker-compose.rest-api-ce.yml up -d
-
-# Run one-time Kafka topic setup
-podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-
-# Restart REST API to pick up topics
-podman restart quarkus-rest-api-ce
-
-# check logs
-podman logs --tail 250 -f quarkus-rest-api-ce
-```
-
-#### Option 2: Run from Source (for Development/Debug)
-
-Each service can be launched individually from the `/distributions` directory. This is useful for debugging, live development, or customization.
+This guide captures events into the Community Edition and queries them back. The Community
+Edition has no authentication, so none of the calls below carries credentials.
 
 ---
 
-### Endpoints of Interest
+## 1. Start the repository
 
-* Repository API Swagger UI: [http://localhost:8080/q/swagger-ui](http://localhost:8080/q/swagger-ui)
-* Capture Endoint: [http://localhost:8080/capture](http://localhost:8080/capture)
-* Events Endoint: [http://localhost:8080/events](http://localhost:8080/events)
+```shell
+cd ../../docker
+docker compose up -d
+curl -s http://localhost:8080/q/health/ready   # UP once Kafka Streams runs
+```
+
+See the [README](../../README.md#run-it) for the port and the other settings.
+
+### Endpoints of interest
+
+* Swagger UI: [http://localhost:8080/q/swagger-ui](http://localhost:8080/q/swagger-ui)
+* Capture: [http://localhost:8080/capture](http://localhost:8080/capture)
+* Events: [http://localhost:8080/events](http://localhost:8080/events)
 * OpenSearch: [http://localhost:9200](http://localhost:9200)
-* OpenSearch Dashboards: [http://localhost:5601](http://localhost:5601)
 
 ---
 
-## 2. Register a User Extension Schema (Required for Most 'Official' Examples)
+## 2. Register a User Extension Schema (only for your own namespaces)
 
-Many examples from GS1 use custom namespaces for extensions. If your events include such extensions, you’ll need to register a JSON Schema.
+The extensions of [ref.openepcis.org](https://ref.openepcis.org) (`oec`, `eubat`, `eutex`, ...) are
+built in. An event with an extension under a namespace of your own needs a JSON Schema for it,
+registered once:
 
 ```shell
 curl -v --location 'http://localhost:8080/userExtension/jsonSchema?namespace=http%3A%2F%2Fns.example.com%2Fepcis%2F&defaultPrefix=example' \
@@ -231,8 +186,6 @@ curl --header "Content-Type: application/json" "http://localhost:9200/epcis-even
   "size": 100
 }'
 ```
-
-Or use the Dashboards UI at [http://localhost:5601](http://localhost:5601) to inspect the `epcis-event*` index.
 
 ---
 

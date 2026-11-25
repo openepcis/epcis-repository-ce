@@ -16,13 +16,22 @@ and nothing in this build comes from anywhere else.
 
 ## What it is, and what it is not
 
-The Community Edition is single-tenant and has no document-level security. Every
-authenticated caller sees all data in the cluster, and OpenSearch runs without its security
-plugin. There is no multi-tenancy, no field-level security, no API keys, no onboarding, no
-streaming SAX converter (XSLT does the format work), no Azure Blob storage, no GS1 Germany
-synchronisation, and no GS1 Conformant Resolver. Those are the
-[Business edition](https://openepcis.io/docs/platform-overview/feature-matrix), which builds
-on the same artifacts. A Maven enforcer in this repository refuses any of them.
+The Community Edition is for trying OpenEPCIS out, for development and for research. **It has
+no authentication: every caller is admin**, with the roles `capture`, `query` and `admin`, and
+sees all data. OpenSearch runs without its security plugin and Kafka in plaintext. Nothing in
+this edition is hardened, and it is **not meant for production**.
+
+It is single-tenant. There is no login, no OIDC, no multi-tenancy, no document- or field-level
+security, no capture checks (possession, commissioning rules, webhook destinations), no API keys,
+no onboarding, no streaming SAX converter (XSLT does the format work), no Azure Blob storage, no
+GS1 Germany synchronisation and no GS1 Conformant Resolver. Those are the
+[Business edition](https://openepcis.io/docs/platform-overview/feature-matrix), which builds on
+the same artifacts and is the one to run in production. A Maven enforcer in this repository
+refuses any Business-edition artifact.
+
+The extension schemas and JSON-LD contexts of the OpenEPCIS DPP extensions on
+[ref.openepcis.org](https://ref.openepcis.org) are part of the image, so events using them are
+captured without registering anything and without network access.
 
 ## Run it
 
@@ -31,33 +40,30 @@ Docker or Podman with Compose, about 8 GB of memory.
 ```bash
 git clone https://github.com/openepcis/epcis-repository-ce.git
 cd epcis-repository-ce/docker
-export OPENEPCIS_ADMIN_PASSWORD="$(openssl rand -base64 24)"
 docker compose up -d
 ```
 
-The compose file starts OpenSearch, Kafka with the topics the pipeline needs, and the service
-on port 8080. The admin password has no default, the service refuses to start without it.
-Readiness is at `http://localhost:8080/q/health/ready` once Kafka Streams is running, the
-OpenAPI at `/q/swagger-ui`.
+The compose file starts OpenSearch, Kafka with the topics the pipeline needs, and the service on
+port 8080 (`OPENEPCIS_PORT=18080 docker compose up -d` when 8080 is taken). Readiness is at
+`http://localhost:8080/q/health/ready` once Kafka Streams is running, the OpenAPI at
+`/q/swagger-ui`.
 
 ### Capture an event
 
 ```bash
-curl -u openepcis-admin:$OPENEPCIS_ADMIN_PASSWORD -i \
-  -H 'Content-Type: application/json' \
+curl -i -H 'Content-Type: application/json' \
   --data @../examples/getting-started/object-event.json \
   http://localhost:8080/capture
 ```
 
 `202 Accepted` with a `Location` header naming the capture job. Poll it until `running` is
-false; `success` tells you whether the document passed validation.
+false; `success` tells you whether the document passed validation, `errors` why not.
 
 ### Query it
 
 ```bash
-curl -u openepcis-admin:$OPENEPCIS_ADMIN_PASSWORD http://localhost:8080/events
-curl -u openepcis-admin:$OPENEPCIS_ADMIN_PASSWORD \
-  -H 'Accept: application/xml' -H 'GS1-EPCIS-Version: 1.2.0' http://localhost:8080/events
+curl http://localhost:8080/events
+curl -H 'Accept: application/xml' -H 'GS1-EPCIS-Version: 1.2.0' http://localhost:8080/events
 ```
 
 The second call answers with an EPCIS 1.2 query document. More in
@@ -67,40 +73,33 @@ The second call answers with an EPCIS 1.2 query document. More in
 
 | Variable | Default | What it does |
 |---|---|---|
-| `OPENEPCIS_ADMIN_PASSWORD` | none, required | Password of the user `openepcis-admin` (roles `admin`, `query`, `capture`) |
-| `OPENEPCIS_OIDC_ENABLED` | `false` | Accept bearer tokens of one OIDC realm |
-| `OPENEPCIS_OIDC_AUTH_SERVER_URL` | empty | The realm, for example `https://auth.example/realms/epcis` |
-| `OPENEPCIS_OIDC_CLIENT_ID` | `openepcis` | The client the tokens are issued for |
+| `OPENEPCIS_PORT` | `8080` | Host port of the service (compose file only) |
 | `QUARKUS_OPENSEARCH_HOSTS` | `localhost:9200` | The OpenSearch cluster |
 | `QUARKUS_OPENSEARCH_PROTOCOL` | `http` | `https` when the cluster has TLS |
 | `QUARKUS_OPENSEARCH_USERNAME`, `QUARKUS_OPENSEARCH_PASSWORD` | empty | Credentials when the cluster has its security plugin |
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | The Kafka cluster |
 | `STORAGE_LOCAL_PATH` | `/data/openepcis` | Where captured documents are kept |
-| `OPENEPCIS_DEFAULT_GROUP` | `query` | The one group every record is written under |
 | `JOBRUNR_DATABASE_TYPE` | `mem` | Scheduled subscriptions in memory, or `sql` with a datasource |
 | `OTEL_SDK_DISABLED` | `true` | `false` with an OTLP endpoint for traces |
-
-Further users go into a mounted `config/application.yml` next to the application, under
-`quarkus.security.users.embedded`.
 
 ## Build from source
 
 ```bash
-mvn -B clean verify
+./mvnw -B clean verify
 ```
 
 Java 25. The image is built with Jib:
 
 ```bash
-mvn -B clean package -DskipTests -Dquarkus.container-image.build=true
+./mvnw -B clean package -DskipTests -Dquarkus.container-image.build=true
 ```
 
 ## Security posture
 
-The compose stack is a development and evaluation setup: OpenSearch without its security
-plugin, Kafka in plaintext, all data visible to every authenticated caller. Do not expose it to
-the public internet without a reverse proxy and TLS in front, and give OpenSearch and Kafka their
-own protection where the deployment demands it. Report a vulnerability to info@openepcis.io.
+None, by design. Anyone who reaches the port can capture, query and subscribe as admin, and every
+subscription can call any URL. Run it on your own machine or in a closed network, never on the
+public internet. For production, use the Business edition. Report a vulnerability of the
+shared code to info@openepcis.io.
 
 ## License
 

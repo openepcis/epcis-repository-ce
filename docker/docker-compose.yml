@@ -1,10 +1,9 @@
 # The OpenEPCIS Community Edition: OpenSearch, Kafka, the topics the pipeline needs, and the
-# service. Development and evaluation setup: OpenSearch without its security plugin, Kafka in
-# plaintext, all data visible to every authenticated caller. Put a reverse proxy with TLS in
-# front before anyone outside your network can reach it.
+# service. For trying out and development: no authentication (every caller is admin), OpenSearch
+# without its security plugin, Kafka in plaintext. Not for production, never on the internet.
 #
-#   export OPENEPCIS_ADMIN_PASSWORD="$(openssl rand -base64 24)"
-#   docker compose up -d
+#   docker compose up -d                        # service on http://localhost:8080
+#   OPENEPCIS_PORT=18080 docker compose up -d   # when 8080 is taken
 #
 services:
   opensearch:
@@ -76,15 +75,13 @@ services:
       kafka-setup:
         condition: service_completed_successfully
     environment:
-      # passed through from the shell; without it the service refuses to start
-      - OPENEPCIS_ADMIN_PASSWORD
       - QUARKUS_OPENSEARCH_HOSTS=opensearch:9200
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - STORAGE_LOCAL_PATH=/data/openepcis
     volumes:
       - epcis-store:/data/openepcis
     ports:
-      - "8080:8080"
+      - "${OPENEPCIS_PORT:-8080}:8080"
     restart: on-failure
 
 volumes:

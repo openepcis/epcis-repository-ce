@@ -16,7 +16,7 @@ This folder contains real-world and synthetic EPCIS 2.0 event examples to help y
 ### 1. Start OpenEPCIS Locally
 
 Make sure OpenEPCIS and supporting services are running.  
-See the [`/docker`](../docker/README.md) folder for quick setup using Docker Compose.
+See [Run it](../README.md#run-it) in the README: `cd docker && docker compose up -d`.
 
 ### 2. Optional: Register User Extension Schema
 
