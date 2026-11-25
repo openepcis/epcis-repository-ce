@@ -19,8 +19,9 @@ services:
         hard: -1
     volumes:
       - opensearch-data:/usr/share/opensearch/data
+    # loopback only: OpenSearch runs without its security plugin
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -81,7 +82,8 @@ services:
     volumes:
       - epcis-store:/data/openepcis
     ports:
-      - "${OPENEPCIS_PORT:-8080}:8080"
+      # loopback only: every caller is admin
+      - "127.0.0.1:${OPENEPCIS_PORT:-8080}:8080"
     restart: on-failure
 
 volumes:

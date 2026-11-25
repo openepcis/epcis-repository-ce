@@ -24,6 +24,7 @@
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-bom</artifactId>
         <version>0.9.4</version>
+        <relativePath/>
     </parent>
     <artifactId>openepcis-quarkus-rest-api-ce</artifactId>
     <version>0.9.4</version>

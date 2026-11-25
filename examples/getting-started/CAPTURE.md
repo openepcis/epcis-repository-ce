@@ -7,8 +7,10 @@ Edition has no authentication, so none of the calls below carries credentials.
 
 ## 1. Start the repository
 
+From the root of this repository:
+
 ```shell
-cd ../../docker
+cd docker
 docker compose up -d
 curl -s http://localhost:8080/q/health/ready   # UP once Kafka Streams runs
 ```

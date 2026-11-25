@@ -44,7 +44,8 @@ docker compose up -d
 ```
 
 The compose file starts OpenSearch, Kafka with the topics the pipeline needs, and the service on
-port 8080 (`OPENEPCIS_PORT=18080 docker compose up -d` when 8080 is taken). Readiness is at
+port 8080 of the loopback interface only, OpenSearch on 9200 likewise
+(`OPENEPCIS_PORT=18080 docker compose up -d` when 8080 is taken). Readiness is at
 `http://localhost:8080/q/health/ready` once Kafka Streams is running, the OpenAPI at
 `/q/swagger-ui`.
 
@@ -79,7 +80,7 @@ The second call answers with an EPCIS 1.2 query document. More in
 | `QUARKUS_OPENSEARCH_USERNAME`, `QUARKUS_OPENSEARCH_PASSWORD` | empty | Credentials when the cluster has its security plugin |
 | `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | The Kafka cluster |
 | `STORAGE_LOCAL_PATH` | `/data/openepcis` | Where captured documents are kept |
-| `JOBRUNR_DATABASE_TYPE` | `mem` | Scheduled subscriptions in memory, or `sql` with a datasource |
+| `QUARKUS_HTTP_CORS_ORIGINS` | localhost and 127.0.0.1, any port | Origins a browser may call the API from |
 | `OTEL_SDK_DISABLED` | `true` | `false` with an OTLP endpoint for traces |
 
 ## Build from source
@@ -94,11 +95,17 @@ Java 25. The image is built with Jib:
 ./mvnw -B clean package -DskipTests -Dquarkus.container-image.build=true
 ```
 
+This builds an image for linux/amd64 into the local Docker daemon; on an ARM machine add
+`-Dquarkus.jib.platforms=linux/arm64`. The published image covers both.
+
 ## Security posture
 
 None, by design. Anyone who reaches the port can capture, query and subscribe as admin, and every
-subscription can call any URL. Run it on your own machine or in a closed network, never on the
-public internet. For production, use the Business edition. Report a vulnerability of the
+subscription can call any URL. The compose file therefore publishes the service and OpenSearch on
+the loopback interface only, and the image lets browsers call the API from localhost pages only
+(CORS), so a web page from elsewhere cannot use it through your browser. Scheduled subscriptions
+are kept in memory and are gone after a restart. Run it on your own machine or in a closed
+network, never on the public internet. For production, use the Business edition. Report a vulnerability of the
 shared code to info@openepcis.io.
 
 ## License

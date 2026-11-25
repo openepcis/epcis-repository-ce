@@ -23,6 +23,10 @@ quarkus:
     host: 0.0.0.0
   jib:
     base-jvm-image: ghcr.io/graalvm/jdk-community:25
-    platforms: linux/amd64,linux/arm64
-    jvm-arguments:
+    # additional, so Quarkus keeps its own JVM arguments (the JBoss log manager among them)
+    jvm-additional-arguments:
       - -Dio.openepcis.digitallink.utils.DefaultGCPLengthProvider.defaultGcpLength=9
+    environment-variables:
+      # Nobody logs in here, so a web page from anywhere else must not reach the API through the
+      # browser of whoever runs it. Set QUARKUS_HTTP_CORS_ORIGINS at runtime to allow more.
+      QUARKUS_HTTP_CORS_ORIGINS: "/https?://(localhost|127\\.0\\.0\\.1)(:[0-9]+)?/"
