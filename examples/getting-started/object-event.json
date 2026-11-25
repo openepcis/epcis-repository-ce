@@ -1,0 +1,20 @@
+{
+  "@context": ["https://ref.gs1.org/standards/epcis/2.0.0/epcis-context.jsonld"],
+  "type": "EPCISDocument",
+  "schemaVersion": "2.0",
+  "creationDate": "2026-10-21T09:00:00.000Z",
+  "epcisBody": {
+    "eventList": [
+      {
+        "type": "ObjectEvent",
+        "eventTime": "2026-10-21T08:00:00.000+01:00",
+        "eventTimeZoneOffset": "+01:00",
+        "epcList": ["urn:epc:id:sgtin:0614141.107346.2017"],
+        "action": "OBSERVE",
+        "bizStep": "shipping",
+        "disposition": "in_transit",
+        "readPoint": {"id": "urn:epc:id:sgln:0614141.00777.0"}
+      }
+    ]
+  }
+}

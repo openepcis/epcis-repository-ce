@@ -1,283 +1,113 @@
-# OpenEPCIS – Community Edition
+<p align="center">
+  <img src="https://openepcis.io/img/openepcis-logo.svg" alt="OpenEPCIS" width="30%">
+</p>
 
-Welcome to the **Community Edition** of **OpenEPCIS** — an open-source, container-friendly implementation of the [GS1 EPCIS 2.0](https://www.gs1.org/standards/epcis) standard. This project provides a modern foundation for deploying, developing, or extending EPCIS repositories in line with GS1 visibility standards.
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Build](https://github.com/openepcis/epcis-repository-ce/actions/workflows/build.yml/badge.svg)](https://github.com/openepcis/epcis-repository-ce/actions/workflows/build.yml)
 
-> ✅ Optimized for JSON-LD, RESTful APIs, and real-time event capture  
-> 🧪 Includes both stable (Community) and experimental (Research) editions  
-> 🔧 Built on Kafka, Quarkus, OpenSearch, and container-native tooling
+<h1 align="center">OpenEPCIS EPCIS Repository, Community Edition</h1>
 
----
+The EPCIS 2.0 repository of [OpenEPCIS](https://openepcis.io) as one container, under
+Apache-2.0: capture, query with named queries, streaming and scheduled subscriptions, on
+OpenSearch and Kafka. It is assembled from the artifacts of
+[openepcis-core](https://github.com/openepcis/openepcis-core) and
+[openepcis-rest-quarkus](https://github.com/openepcis/openepcis-rest-quarkus) on Maven Central,
+and nothing in this build comes from anywhere else.
 
-## 📚 Table of Contents
+## What it is, and what it is not
 
-- [What is EPCIS 2.0?](#what-is-epcis-20)
-- [What is OpenEPCIS?](#what-is-openepcis)
-- [Repository Structure](#repository-structure)
-- [Getting Started](#getting-started)
-  - [Option 1: Run via Podman](#option-1-run-via-podman)
-  - [Option 2: Run via Docker](#option-2-run-via-docker)
-  - [Option 3: Developer Mode (Quarkus)](#option-3-developer-mode-quarkus)
-- [Ready to Try Event Capture?](#-ready-to-try-event-capture)
-- [Sample Requests](#sample-requests)
-- [Dashboards](#dashboards)
-  - [OpenSearch Dashboards](#opensearch-dashboards)
-  - [Grafana (Optional)](#grafana-optional)
-- [Learn More](#learn-more)
-- [Contributing](#contributing)
-- [License](#license)
+The Community Edition is for trying OpenEPCIS out, for development and for research. **It has
+no authentication: every caller is admin**, with the roles `capture`, `query` and `admin`, and
+sees all data. OpenSearch runs without its security plugin and Kafka in plaintext. Nothing in
+this edition is hardened, and it is **not meant for production**.
 
----
+It is single-tenant. There is no login, no OIDC, no multi-tenancy, no document- or field-level
+security, no capture checks (possession, commissioning rules, webhook destinations), no API keys,
+no onboarding, no streaming SAX converter (XSLT does the format work), no Azure Blob storage, no
+GS1 Germany synchronisation and no GS1 Conformant Resolver. Those are the
+[Business edition](https://openepcis.io/docs/platform-overview/feature-matrix), which builds on
+the same artifacts and is the one to run in production. A Maven enforcer in this repository
+refuses any Business-edition artifact.
 
-## What is EPCIS 2.0?
+The extension schemas and JSON-LD contexts of the OpenEPCIS DPP extensions on
+[ref.openepcis.org](https://ref.openepcis.org) are part of the image, so events using them are
+captured without registering anything and without network access.
 
-**EPCIS (Electronic Product Code Information Services)** is a GS1 standard for sharing supply chain event data. Version 2.0 introduces major improvements:
+## Run it
 
-- ✅ Native JSON/JSON-LD support
-- 🌐 Better interoperability with web services
-- 📡 Event-based RESTful communication
-- 🔁 Enhanced modeling for serialized products, sensor data, and IoT
-- 🔗 Seamless integration with [GS1 Digital Link](https://www.gs1.org/standards/digital-link/)
+Docker or Podman with Compose, about 8 GB of memory.
 
----
-
-## What is OpenEPCIS?
-
-**OpenEPCIS** is a modular, scalable EPCIS 2.0 repository built for production and experimentation.
-
-- Fast, reactive architecture using **Quarkus**
-- Kafka-powered **event pipelines**
-- Built-in **OpenSearch** integration for queries
-- RESTful API supporting EPCIS 2.0 (JSON-LD)
-- Native support for custom **extension schemas**
-- Runs with **Docker**, **Podman**, or as a native Java app
-
----
-
-## Repository Structure
-
-```
-
-distributions/
-├── community-edition/            # REST API (Community Edition)
-├── research-edition/             # REST API (Research Edition)
-
-docker/
-├── docker-compose.yml            # Infra stack (Kafka, OpenSearch, Dashboards)
-├── .env                          # Environment variables
-
-modules/
-├── openepcis-rest-api-common/    # Shared API components
-├── openepcis-client/             # REST/WebSocket client
-├── openepcis-generated-events-capture/  # Synthetic test data generator
-├── quarkus-capture-topology-ce/  # Kafka capture stream (CE)
-├── quarkus-rest-application-ce/  # Community Edition entrypoint
-
-````
-
----
-
-## Getting Started
-
-To launch the minimal OpenEPCIS stack locally:
-
-1. Clone the repository
-2. Navigate to the `docker` directory
-3. Start the services using Docker Compose
-
-```shell
+```bash
 git clone https://github.com/openepcis/epcis-repository-ce.git
 cd epcis-repository-ce/docker
-```
-
-For details on what services are included and how to configure them, refer to the [docker/README.md](docker/README.md).
-
-### Option 1: Run via Podman
-
-> Best for pure open-source environments.
-
-**Prerequisites:**
-
-- [Podman](https://podman.io/)
-- [podman-compose](https://github.com/containers/podman-compose)
-
-When running on **MacOS** or **Windows** make sure to setup your Podman VM Resources - we need a bit more... But you don't need to set rootless!
-
-```shell
-# Create VM for 8GB of memory and 8 CPUs
-podman machine init --memory=8192 --cpus=8
-
-# and start it
-podman machine start
-```
-
-Start Community Edition REST API:
-
-```shell
-podman-compose -f docker-compose.yml -f docker-compose.rest-api-ce.yml up -d
-
-# Run one-time Kafka topic setup
-podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-
-# Restart REST API to pick up topics
-podman restart quarkus-rest-api-ce
-
-# check logs
-podman logs --tail 250 -f quarkus-rest-api-ce
-```
-
-Or Research Edition
-
-```shell
-podman-compose -f docker-compose.yml -f docker-compose.rest-api-re.yml up -d
-
-# Run one-time Kafka topic setup
-podman-compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-
-# Restart REST API to pick up topics
-podman restart quarkus-rest-api-re
-
-# check logs
-podman logs --tail 250 -f quarkus-rest-api-re
-```
-
-### Option 2: Run via Docker
-
-Start Community Edition REST API:
-
-```shell
-docker compose -f docker-compose.rest-api-ce.yml up -d
-
-# Run one-time Kafka topic setup
-docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-
-# Restart REST API to pick up topics
-podman restart quarkus-rest-api-ce
-
-# check logs
-docker logs --tail 250 -f quarkus-rest-api-ce
-```
-
-Or Research Edition
-
-```shell
-docker compose -f docker-compose.rest-api-re.yml up -d
-
-# Run one-time Kafka topic setup
-docker compose -f docker-compose.kafka-setup.yml run --rm kafkasetup
-
-# Restart REST API to pick up topics
-podman restart quarkus-rest-api-re
-
-# check logs
-docker logs --tail 250 -f quarkus-rest-api-re
-```
-
-
----
-
-### Option 3: Developer Mode (Quarkus)
-
-> Run locally using Maven + hot reload.
-
-**Prerequisites:**
-
-* Java 21+
-* Apache Maven
-* Docker or Podman (for dependencies)
-
-```bash
 docker compose up -d
-docker compose --profile init run --rm kafkasetup
-
-cd distributions/community-edition
-mvn quarkus:dev
 ```
 
----
+The compose file starts OpenSearch, Kafka with the topics the pipeline needs, and the service on
+port 8080 of the loopback interface only, OpenSearch on 9200 likewise
+(`OPENEPCIS_PORT=18080 docker compose up -d` when 8080 is taken). Readiness is at
+`http://localhost:8080/q/health/ready` once Kafka Streams is running, the OpenAPI at
+`/q/swagger-ui`.
 
-### 🚀 Ready to Try Event Capture?
-
-Take a look at the full [capture walkthrough](examples/getting-started/CAPTURE.md) to learn how to:
-
-* Register extension schemas for custom EPCIS fields
-* Send test events using `curl` or the built-in generator
-* Verify captured data in OpenSearch and Dashboards
-
-It’s the fastest way to see OpenEPCIS in action.
-
----
-
-## Sample Requests
-
-Use `curl` to test the capture endpoint:
+### Capture an event
 
 ```bash
-curl -X POST http://localhost:8080/capture \
-     -H "Content-Type: application/json" \
-     -d @modules/openepcis-generated-events-capture/src/test/resources/epcisEvent.json
+curl -i -H 'Content-Type: application/json' \
+  --data @../examples/getting-started/object-event.json \
+  http://localhost:8080/capture
 ```
 
-Query captured events:
+`202 Accepted` with a `Location` header naming the capture job. Poll it until `running` is
+false; `success` tells you whether the document passed validation, `errors` why not.
+
+### Query it
 
 ```bash
 curl http://localhost:8080/events
+curl -H 'Accept: application/xml' -H 'GS1-EPCIS-Version: 1.2.0' http://localhost:8080/events
 ```
 
----
+The second call answers with an EPCIS 1.2 query document. More in
+[examples/getting-started/CAPTURE.md](examples/getting-started/CAPTURE.md).
 
-## Dashboards
+## Configuration
 
-OpenEPCIS uses **OpenSearch** for indexing and provides tools for visual traceability.
+| Variable | Default | What it does |
+|---|---|---|
+| `OPENEPCIS_PORT` | `8080` | Host port of the service (compose file only) |
+| `QUARKUS_OPENSEARCH_HOSTS` | `localhost:9200` | The OpenSearch cluster |
+| `QUARKUS_OPENSEARCH_PROTOCOL` | `http` | `https` when the cluster has TLS |
+| `QUARKUS_OPENSEARCH_USERNAME`, `QUARKUS_OPENSEARCH_PASSWORD` | empty | Credentials when the cluster has its security plugin |
+| `KAFKA_BOOTSTRAP_SERVERS` | `localhost:9092` | The Kafka cluster |
+| `STORAGE_LOCAL_PATH` | `/data/openepcis` | Where captured documents are kept |
+| `QUARKUS_HTTP_CORS_ORIGINS` | localhost and 127.0.0.1, any port | Origins a browser may call the API from |
+| `OTEL_SDK_DISABLED` | `true` | `false` with an OTLP endpoint for traces |
 
-### OpenSearch Dashboards
+## Build from source
 
-Visit: [http://localhost:5601](http://localhost:5601)
+```bash
+./mvnw -B clean verify
+```
 
-* Filter and inspect raw event data
-* Monitor by business step, disposition, product
-* Build custom charts and dashboards
+Java 25. The image is built with Jib:
 
-> Dashboards are not shipped by default — you can build them using `epcis-event*` indices.
+```bash
+./mvnw -B clean package -DskipTests -Dquarkus.container-image.build=true
+```
 
----
+This builds an image for linux/amd64 into the local Docker daemon; on an ARM machine add
+`-Dquarkus.jib.platforms=linux/arm64`. The published image covers both.
 
-### Grafana (Optional)
+## Security posture
 
-You can connect **Grafana** to OpenSearch:
-
-* Use OpenSearch plugin or native support
-* Combine EPCIS with other telemetry data
-* Build alerts or cross-supply chain views
-
----
-
-## Learn More
-
-* [GS1 EPCIS 2.0 Standard](https://ref.gs1.org/standards/epcis/)
-* [GS1 Core Business Vocabulary (CBV)](https://ref.gs1.org/standards/cbv/)
-* [GS1 Digital Link](https://ref.gs1.org/standards/digital-link/)
-* [Quarkus](https://quarkus.io/)
-* [Apache Kafka](https://kafka.apache.org/)
-* [OpenSearch](https://opensearch.org/)
-* [OpenEPCIS Tools](https://tools.openepcis.io)
-* [Event Sentry Validator](https://github.com/openepcis/openepcis-event-sentry)
-
----
-
-## Contributing
-
-We welcome your feedback and contributions.
-
-* Fork and submit a PR
-* Open issues for bugs or enhancements
-* Join discussions in GitHub
-
----
+None, by design. Anyone who reaches the port can capture, query and subscribe as admin, and every
+subscription can call any URL. The compose file therefore publishes the service and OpenSearch on
+the loopback interface only, and the image lets browsers call the API from localhost pages only
+(CORS), so a web page from elsewhere cannot use it through your browser. Scheduled subscriptions
+are kept in memory and are gone after a restart. Run it on your own machine or in a closed
+network, never on the public internet. For production, use the Business edition. Report a vulnerability of the
+shared code to info@openepcis.io.
 
 ## License
 
-The **OpenEPCIS Community Edition** is licensed under the [Apache 2.0 License](LICENSE).
-
-> ⚠️ Note: The **Research Edition** includes a SAX-based XML converter and other components distributed under a separate license by **benelog GmbH & Co. KG**.
-> Commercial usage of these components requires a separate agreement.
-> Contact: [info@openepcis.io](mailto:info@openepcis.io)
+Apache License 2.0, see [LICENSE](LICENSE).

@@ -1,6 +1,6 @@
 # OpenEPCIS Examples
 
-This folder contains real-world and synthetic EPCIS 2.0 event examples to help you get started with capturing and querying data using OpenEPCIS.
+This folder holds an EPCIS 2.0 example and a guide to capturing and querying data with OpenEPCIS.
 
 ---
 
@@ -16,7 +16,7 @@ This folder contains real-world and synthetic EPCIS 2.0 event examples to help y
 ### 1. Start OpenEPCIS Locally
 
 Make sure OpenEPCIS and supporting services are running.  
-See the [`/docker`](../docker/README.md) folder for quick setup using Docker Compose.
+See [Run it](../README.md#run-it) in the README: `cd docker && docker compose up -d`.
 
 ### 2. Optional: Register User Extension Schema
 
@@ -29,8 +29,8 @@ See the [CAPTURE.md](getting-started/CAPTURE.md) guide for details.
 Use `curl` to post any example directly:
 
 ```bash
-curl --header "Content-Type: application/ld+json" --data-binary @example_9.6.1-object_event.jsonld http://localhost:8080/capture
-````
+curl --header "Content-Type: application/json" --data-binary @getting-started/object-event.json http://localhost:8080/capture
+```
 
 Or pipe directly from hosted GS1 Examples:
 
