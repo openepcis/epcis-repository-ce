@@ -23,11 +23,11 @@
     <parent>
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-bom</artifactId>
-        <version>0.9.4</version>
+        <version>0.9.5</version>
         <relativePath/>
     </parent>
     <artifactId>openepcis-quarkus-rest-api-ce</artifactId>
-    <version>0.9.4</version>
+    <version>0.9.5</version>
     <name>OpenEPCIS EPCIS Repository, Community Edition</name>
     <description>
         The EPCIS 2.0 repository of OpenEPCIS as one container: capture, query and subscriptions
@@ -50,7 +50,7 @@
     </scm>
     <properties>
         <!-- one platform version for every OpenEPCIS artifact; the bom parent above is the same -->
-        <openepcis.version>0.9.4</openepcis.version>
+        <openepcis.version>0.9.5</openepcis.version>
         <quarkus.container-image.registry>ghcr.io</quarkus.container-image.registry>
         <quarkus.container-image.group>openepcis</quarkus.container-image.group>
         <quarkus.container-image.name>openepcis-quarkus-rest-api-ce</quarkus.container-image.name>

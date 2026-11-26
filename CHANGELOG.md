@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.5]
+
+- EPCIS 1.2 XML output carries only the EPCIS namespaces, no stray `xmlns:xalan` declaration.
+- The OpenAPI document declares no security requirements, so the Swagger UI at `/q/swagger-ui`
+  shows every endpoint as open and asks for no credentials.
+- Built on `io.openepcis` 0.9.5 from Maven Central.
+
 ## [0.9.4]
 
 The first release of the Community Edition that builds from Maven Central alone.

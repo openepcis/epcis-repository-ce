@@ -71,7 +71,7 @@ services:
         done
 
   epcis-repository:
-    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:0.9.4
+    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:0.9.5
     depends_on:
       opensearch:
         condition: service_healthy
