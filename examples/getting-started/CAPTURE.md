@@ -11,8 +11,7 @@ From the root of this repository:
 
 ```shell
 cd docker
-docker compose up -d
-curl -s http://localhost:8080/q/health/ready   # UP once Kafka Streams runs
+docker compose up -d --wait   # returns once the service is ready to capture
 ```
 
 See the [README](../../README.md#run-it) for the port and the other settings.

@@ -2,8 +2,10 @@
 # service. For trying out and development: no authentication (every caller is admin), OpenSearch
 # without its security plugin, Kafka in plaintext. Not for production, never on the internet.
 #
-#   docker compose up -d                        # service on http://localhost:8080
-#   OPENEPCIS_PORT=18080 docker compose up -d   # when 8080 is taken
+#   docker compose up -d --wait                        # returns once http://localhost:8080 is ready
+#   OPENEPCIS_PORT=18080 docker compose up -d --wait   # when 8080 is taken
+#
+# The file stands alone: downloading it is enough, no clone needed.
 #
 services:
   opensearch:
@@ -84,6 +86,13 @@ services:
     ports:
       # loopback only: every caller is admin
       - "127.0.0.1:${OPENEPCIS_PORT:-8080}:8080"
+    # ready once Kafka Streams runs; lets `docker compose up --wait` return only then
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/q/health/ready || exit 1"]
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 60
     restart: on-failure
 
 volumes:
