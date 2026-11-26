@@ -35,25 +35,28 @@ captured without registering anything and without network access.
 
 ## Run it
 
-Docker or Podman with Compose, about 8 GB of memory.
+Docker or Podman with Compose, about 8 GB of memory. The compose file stands alone, so there is
+nothing to clone:
 
 ```bash
-git clone https://github.com/openepcis/epcis-repository-ce.git
-cd epcis-repository-ce/docker
-docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/openepcis/epcis-repository-ce/main/docker/docker-compose.yml
+docker compose up -d --wait
 ```
 
-The compose file starts OpenSearch, Kafka with the topics the pipeline needs, and the service on
-port 8080 of the loopback interface only, OpenSearch on 9200 likewise
-(`OPENEPCIS_PORT=18080 docker compose up -d` when 8080 is taken). Readiness is at
-`http://localhost:8080/q/health/ready` once Kafka Streams is running, the OpenAPI at
-`/q/swagger-ui`.
+`--wait` returns once the service is ready to capture, typically within half a minute after the
+images are pulled. The compose file starts OpenSearch, Kafka with the topics the pipeline needs,
+and the service on port 8080 of the loopback interface only, OpenSearch on 9200 likewise
+(`OPENEPCIS_PORT=18080 docker compose up -d --wait` when 8080 is taken). The OpenAPI is at
+`http://localhost:8080/q/swagger-ui`.
+
+`docker compose down` stops it, `docker compose down -v` also deletes the captured data.
 
 ### Capture an event
 
 ```bash
+curl -fsSLO https://raw.githubusercontent.com/openepcis/epcis-repository-ce/main/examples/getting-started/object-event.json
 curl -i -H 'Content-Type: application/json' \
-  --data @../examples/getting-started/object-event.json \
+  --data @object-event.json \
   http://localhost:8080/capture
 ```
 
