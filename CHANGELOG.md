@@ -9,8 +9,7 @@ The first release of the Community Edition that builds from Maven Central alone.
 - The copied application and topology sources, the Research Edition and the company Maven
   registry are gone. A Maven enforcer refuses any Business-edition artifact.
 - No authentication: every caller is admin. For trying out, development and research, not for
-  production; the Business edition is the one to run there. The previous image said otherwise
-  and shipped proprietary code under the Apache label.
+  production; the Business edition is the one to run there.
 - Since nobody logs in, the compose file publishes the service and OpenSearch on the loopback
   interface only, and the image allows browser calls (CORS) from localhost pages only
   (`QUARKUS_HTTP_CORS_ORIGINS` widens it).
