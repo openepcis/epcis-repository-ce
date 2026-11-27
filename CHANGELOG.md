@@ -5,6 +5,10 @@
 - EPCIS 1.2 XML output carries only the EPCIS namespaces, no stray `xmlns:xalan` declaration.
 - The OpenAPI document declares no security requirements, so the Swagger UI at `/q/swagger-ui`
   shows every endpoint as open and asks for no credentials.
+- The service offers the EPCIS 2.0 REST binding. `GET /events/aggregate`, `POST /events/validate`
+  and `PUT /queries/{queryName}` are part of the Business edition.
+- Operations outside the standard, such as `/userExtension/jsonSchema` for your own extension
+  schemas, are marked `x-openepcis-non-standard` in the OpenAPI document.
 - Built on `io.openepcis` 0.9.5 from Maven Central.
 
 ## [0.9.4]
