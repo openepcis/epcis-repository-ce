@@ -9,7 +9,7 @@
 #
 services:
   opensearch:
-    image: docker.io/opensearchproject/opensearch:2.19.2
+    image: docker.io/opensearchproject/opensearch:2.19.8
     environment:
       - discovery.type=single-node
       - DISABLE_SECURITY_PLUGIN=true

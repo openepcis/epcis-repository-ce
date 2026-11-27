@@ -9,7 +9,7 @@
   and `PUT /queries/{queryName}` are part of the Business edition.
 - Operations outside the standard, such as `/userExtension/jsonSchema` for your own extension
   schemas, are marked `x-openepcis-non-standard` in the OpenAPI document.
-- Built on `io.openepcis` 0.9.5 from Maven Central.
+- Built on `io.openepcis` 0.9.5 from Maven Central, on Quarkus 3.40. The compose file runs OpenSearch 2.19.8.
 
 ## [0.9.4]
 
