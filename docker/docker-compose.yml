@@ -9,7 +9,7 @@
 #
 services:
   opensearch:
-    image: docker.io/opensearchproject/opensearch:2.19.2
+    image: docker.io/opensearchproject/opensearch:2.19.8
     environment:
       - discovery.type=single-node
       - DISABLE_SECURITY_PLUGIN=true
@@ -71,7 +71,7 @@ services:
         done
 
   epcis-repository:
-    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:0.9.4
+    image: ghcr.io/openepcis/openepcis-quarkus-rest-api-ce:0.9.5
     depends_on:
       opensearch:
         condition: service_healthy
